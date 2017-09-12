@@ -29,7 +29,7 @@ Environment requirements:
 5. $ ros2 run ros1_bridge parameter_bridge  
 6. Repeat the same steps on another computer/robot   
 (both should be in the same network)  
-7. Then, each robot can aware all the others shown on the rviz.
+7. Then, each robot can be aware of all the others shown on the rviz.
 
 
 
