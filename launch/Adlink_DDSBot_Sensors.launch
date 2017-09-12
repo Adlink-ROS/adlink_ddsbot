@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<launch>
+    <!-- TF setting -->
+    <include file="$(find adlink_ddsbot)/launch/includes/adlink_ddsbot_tf.launch.xml" />
+
+    <!-- SENSOR DEVICE -->
+    <!-- RPLidar -->
+    <include file="$(find adlink_ddsbot)/launch/includes/rplidar.launch.xml" />
+    <!-- IMU -->
+    <include file="$(find adlink_ddsbot)/launch/includes/gy85.launch.xml" />
+    <!-- Arduino -->
+    <node pkg="rosserial_python" type="serial_node.py" name="serial_node">
+        <param name="port" value="/dev/uno"/>
+        <param name="baud" value="57600"/>
+    </node>
+
+    <!-- ODOMETRY -->
+    <!--rf2o_Laser_Odometry-->
+    <include file="$(find adlink_ddsbot)/launch/includes/adlink_rf2o.launch.xml" />
+    <!-- Robot_Localization -->
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+        <rosparam command="load" file="$(find adlink_ddsbot)/param/adlink_ekf_params.yaml" />
+    </node>
+
+</launch>

@@ -1,0 +1,6 @@
+<library path="lib/libswarm_layers">
+  <class type="ddsbot_swarm_layer::SwarmLayer" base_class_type="costmap_2d::Layer">
+    <description>the costmap layer for DDSBot Swarm application </description>
+  </class>
+</library>
+
