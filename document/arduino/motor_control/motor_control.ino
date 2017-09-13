@@ -103,25 +103,28 @@ void decoder_2_isr() {
 
 void report_decoder_result_isr() {
   // This is a workaround to prevent from motor idle when speed  = 0;
-  if ((decoder_pin_1_counter == 0) && (decoder_pin_1_delay_counter > 10)) {
-    analogWrite(out1_pin, 0);
-    analogWrite(out2_pin, 0);
+  if (decoder_pin_1_delay_counter > 50) {
+    analogWrite(out3_pin, 0);
+    analogWrite(out4_pin, 0);
     decoder_pin_1_delay_counter = 0;
   }
   
-  if ((decoder_pin_2_counter == 0) && (decoder_pin_2_delay_counter > 10)) {
-    analogWrite(out3_pin, 0);
-    analogWrite(out4_pin, 0);
+  if (decoder_pin_2_delay_counter > 50) {
+    analogWrite(out1_pin, 0);
+    analogWrite(out2_pin, 0);
     decoder_pin_2_delay_counter = 0;
   }
   
   char str[16];
   sprintf(str, "%d,%d\r\n", decoder_pin_1_counter, decoder_pin_2_counter);
   Serial.print(str);
+
+  if (decoder_pin_1_counter == 0)
+    decoder_pin_1_delay_counter += 1;
+  if (decoder_pin_2_counter == 0)
+    decoder_pin_2_delay_counter += 1;
+  
   decoder_pin_1_counter = 0;
   decoder_pin_2_counter = 0;
-
-  decoder_pin_1_delay_counter += 1;
-  decoder_pin_2_delay_counter += 1;
 }
 
