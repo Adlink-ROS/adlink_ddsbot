@@ -122,7 +122,7 @@ Visualization Manager:
       Axes Radius: 0.00999999978
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: false
+      Enabled: true
       Head Length: 0.0700000003
       Head Radius: 0.0299999993
       Name: PoseArray
@@ -131,17 +131,17 @@ Visualization Manager:
       Shape: Arrow (Flat)
       Topic: /particlecloud
       Unreliable: false
-      Value: false
+      Value: true
     - Alpha: 0.699999988
       Class: rviz/Map
       Color Scheme: costmap
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Global Costmap
       Topic: /move_base_node/global_costmap/costmap
       Unreliable: false
       Use Timestamp: false
-      Value: true
+      Value: false
     - Alpha: 0.699999988
       Class: rviz/Map
       Color Scheme: costmap
@@ -206,16 +206,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 27.9839287
+      Distance: 14.4803343
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 38.7073174
-        Y: 14.9830027
-        Z: -3.81469727e-06
+        X: 3.95683193
+        Y: 2.15113711
+        Z: -5.2132069e-05
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
@@ -224,7 +224,7 @@ Visualization Manager:
       Pitch: 1.56979632
       Target Frame: map
       Value: ThirdPersonFollower (rviz)
-      Yaw: 3.13040328
+      Yaw: 4.71041393
     Saved: ~
 Window Geometry:
   Displays:
@@ -242,5 +242,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1301
-  X: 65
-  Y: 24
+  X: 164
+  Y: 172

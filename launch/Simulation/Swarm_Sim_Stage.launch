@@ -13,14 +13,13 @@
         <param name="oscillation_distance" value="0.5" />
         <!-- params for local control (dwa) -->
         <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
-        <rosparam file="$(find navigation_stage)/move_base_config/dwa_local_planner_params.yaml" command="load" />
+        <rosparam file="$(find adlink_ddsbot)/launch/Simulation/includes/dwa_local_planner_params.yaml" command="load" />
         <!-- params for costmap layers -->        
-        <rosparam file="$(find navigation_stage)/move_base_config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-        <rosparam file="$(find navigation_stage)/move_base_config/local_costmap_params.yaml" command="load" />
-        <rosparam ns="global_costmap" subst_value="true">
-            footprint: [[-0.325, -0.325], [-0.325, 0.325], [0.325, 0.325], [0.46, 0.0], [0.325, -0.325]]
-            footprint_padding: 0.01
-            
+        <rosparam file="$(find adlink_ddsbot)/launch/Simulation/includes/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find adlink_ddsbot)/launch/Simulation/includes/local_costmap_params.yaml" command="load" />
+        <rosparam ns="global_costmap" subst_value="true"> 
+            footprint: [[-0.12, -0.12], [-0.12, 0.12], [0.12, 0.12], [0.25, 0.0], [0.12, -0.12]]
+            footprint_padding: 0.01         
             transform_tolerance: 0.5
             update_frequency: 20.0
             publish_frequency: 20.0
@@ -50,22 +49,21 @@
                enabled:               true
 
             inflation:
-                inflation_radius: 0.55
+                inflation_radius: 1
                 cost_scaling_factor: 10.0
         </rosparam>       
     </node>
     
     <!-- map server -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find navigation_stage)/stage_config/maps/willow-full-0.05.pgm 0.05" respawn="false" />
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find adlink_ddsbot)/launch/Simulation/includes/maze.yaml" respawn="false" />
 
     <!-- stage_ros -->
-    <node pkg="stage_ros" type="stageros" name="stageros" args="$(find navigation_stage)/stage_config/worlds/willow-pr2-5cm.world" respawn="false" >
+    <node pkg="stage_ros" type="stageros" name="stageros" args="$(find adlink_ddsbot)/launch/Simulation/includes/maze.world" respawn="false" >
         <param name="base_watchdog_timeout" value="0.2"/>
     </node>
 
     <!-- AMCL Config -->
-    <!-- x:47.3, y:21.37, a:-1.077 --> 
-    <include file="$(find adlink_ddsbot)/launch/Simulation/amcl_node.xml"/>  
+    <include file="$(find adlink_ddsbot)/launch/Simulation/includes/amcl_node.xml"/>  
 
     <!-- RVIZ -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find adlink_ddsbot)/rviz_cfg/adlink_swarm_sim.rviz" />
@@ -78,7 +76,7 @@
     <arg name="self_id" default="$(env HOSTNAME)" />
 
     <!-- Setting for ROS 2-1 topics bridge -->
-    <rosparam param="topics">[{'topic':swarm_poses, 'type':geometry_msgs/TransformStamped}]</rosparam> 
+    <rosparam param="topics">[{'topic':swarm_poses, 'type':geometry_msgs/TransformStamped}, {'topic':swarm_goals, 'type':geometry_msgs/TransformStamped}]</rosparam> 
 
     <!-- pose to transform node -->
     <node name="pose_to_transform"   pkg="adlink_ddsbot"  type="pose_to_transform.py" output="screen">
@@ -92,6 +90,12 @@
         <param name="map_id" value="map"/>
         <param name="id_timeout" value="1"/> <!-- unit: sec -->
         <param name="fake_radius" value="0.3"/> <!-- unit: meter --> 
+        <param name="sim_mode" value="$(arg sim_mode)" />
+    </node>
+
+    <!-- Goal filter node -->
+    <node name="goal_filter"   pkg="adlink_ddsbot"  type="goal_filter.py" output="screen">
+        <param name="self_id" value="$(arg self_id)"/>
         <param name="sim_mode" value="$(arg sim_mode)" />
     </node>
 </launch>
