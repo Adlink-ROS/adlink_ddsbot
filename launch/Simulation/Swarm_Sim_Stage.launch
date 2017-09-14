@@ -33,17 +33,17 @@
 
             plugins: 
                 - {name: static,           type: "costmap_2d::StaticLayer"}            
-                - {name: sensor,           type: "costmap_2d::ObstacleLayer"}
+                #- {name: sensor,           type: "costmap_2d::ObstacleLayer"}
                 - {name: swarm_layer,      type: "ddsbot_swarm_layer::SwarmLayer"}
                 - {name: inflation,        type: "costmap_2d::InflationLayer"}
 
             static:        
                 map_topic: /map 
-                subscribe_to_updates: true
+                subscribe_to_updates: false
 
-            sensor:
-                observation_sources: base_scan
-                base_scan: {data_type: LaserScan, expected_update_rate: 0.4, observation_persistence: 0.0, marking: true, clearing: true, max_obstacle_height: 0.4, min_obstacle_height: 0.08}
+            #sensor:
+                #observation_sources: base_scan
+                #base_scan: {data_type: LaserScan, expected_update_rate: 0.4, observation_persistence: 0.0, marking: true, clearing: true, max_obstacle_height: 0.4, min_obstacle_height: 0.08}
 
             swarm_layer:
                enabled:               true
@@ -78,10 +78,12 @@
     <!-- Setting for ROS 2-1 topics bridge -->
     <rosparam param="topics">[{'topic':swarm_poses, 'type':geometry_msgs/TransformStamped}, {'topic':swarm_goals, 'type':geometry_msgs/TransformStamped}]</rosparam> 
 
-    <!-- pose to transform node -->
-    <node name="pose_to_transform"   pkg="adlink_ddsbot"  type="pose_to_transform.py" output="screen">
+    <!-- tf to transform node -->
+    <node name="tf_to_transform"   pkg="adlink_ddsbot"  type="tf_to_transform.py" output="screen">
         <param name="self_id" value="$(arg self_id)"/>
         <param name="sim_mode" value="$(arg sim_mode)" />
+        <param name="map_frame" value="map" />
+        <param name="base_frame" value="base_link" />
     </node>
 
     <!-- robot id filter node -->
