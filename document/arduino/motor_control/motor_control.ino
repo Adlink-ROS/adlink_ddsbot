@@ -12,7 +12,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#include <ArduinoJson.h>
 #include <MsTimer2.h>
 
 const int out1_pin = 5;
@@ -28,7 +27,7 @@ volatile int decoder_pin_1_delay_counter = 0;
 volatile int decoder_pin_2_delay_counter = 0;
 
 // Report internal;
-const int report_period = 100;
+const int report_period = 1000;
 
 
 void setup() {
@@ -61,34 +60,27 @@ void setup() {
 }
 
 void loop() {
-    DynamicJsonBuffer jsonBuffer;
     if (Serial.available()) {
       String commad_string = Serial.readString();
-      JsonObject& root = jsonBuffer.parseObject(commad_string);
-      //Serial.println(commad_string);
-      String out_1 = root["out_1"];
-      String out_2 = root["out_2"];
-      String out_3 = root["out_3"];
-      String out_4 = root["out_4"];
+      String out_1 = getValue(commad_string, ',', 0);
+      String out_2 = getValue(commad_string, ',', 1);
+      String out_3 = getValue(commad_string, ',', 2);
+      String out_4 = getValue(commad_string, ',', 3);
       if (out_1 != NULL) {
-        int out1_value = root["out_1"];
-        analogWrite(out1_pin, out1_value);
-        //Serial.println(out1_value);
+        int out1_value = out_1.toFloat();
+        analogWrite(out1_pin, convert_adc(out1_value));
       }
       if (out_2 != NULL) {
-        int out2_value = root["out_2"];
-        analogWrite(out2_pin, out2_value);
-        //Serial.println(out2_value);
+        int out2_value = out_2.toFloat();
+        analogWrite(out2_pin, convert_adc(out2_value));
       }
       if (out_3 != NULL) {
-        int out3_value = root["out_3"];
-        analogWrite(out3_pin, out3_value);
-        //Serial.println(out3_value);
+        int out3_value = out_3.toFloat();
+        analogWrite(out3_pin, convert_adc(out3_value));
       }
       if (out_4 != NULL) {
-        int out4_value = root["out_4"];
-        analogWrite(out4_pin, out4_value);
-        //Serial.println(out4_value);
+        int out4_value = out_4.toFloat();
+        analogWrite(out4_pin, convert_adc(out4_value));
       }
     }
 }
@@ -127,4 +119,27 @@ void report_decoder_result_isr() {
   decoder_pin_1_counter = 0;
   decoder_pin_2_counter = 0;
 }
+
+String getValue(String data, char separator, int index)
+{
+  int found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = data.length()-1;
+
+  for(int i=0; i<=maxIndex && found<=index; i++){
+    if(data.charAt(i)==separator || i==maxIndex){
+        found++;
+        strIndex[0] = strIndex[1]+1;
+        strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  }
+
+  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
+float convert_adc(int value) {
+  return 0.1335 * value + 7.07;  
+}
+
+
 

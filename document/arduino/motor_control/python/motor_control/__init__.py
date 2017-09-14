@@ -21,26 +21,26 @@ class Motor:
     def spin(self, command):
         left_cmd = command.get('left')
         right_cmd = command.get('right')
-        msg = dict()
+        values = ["0", "0", "0", "0"]
 
         if left_cmd is not None:
             direction = left_cmd.get('dir')
             value = left_cmd.get('val')
             if direction == self.WHEEL_FORWARD:
-                msg['out_1'] = value
+                values[0] = str(value)
             elif direction == self.WHEEL_REVERSE:
-                msg['out_2'] = value
+                values[1] = str(value)
 
         if right_cmd is not None:
             direction = right_cmd.get('dir')
             value = right_cmd.get('val')
             if direction == self.WHEEL_FORWARD:
-                msg['out_3'] = value
+                values[2] = str(value)
             elif direction == self.WHEEL_REVERSE:
-                msg['out_4'] = value
+                values[3] = str(value)
 
-        msg_json = json.dumps(msg).encode()
-        self.serial.write(msg_json)
+        msg = ",".join(values).encode()
+        self.serial.write(msg)
 
     def speed(self):
         msg = self.serial.readline().strip().decode('utf-8')
