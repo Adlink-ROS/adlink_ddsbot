@@ -27,7 +27,7 @@ volatile int decoder_pin_1_delay_counter = 0;
 volatile int decoder_pin_2_delay_counter = 0;
 
 // Report internal;
-const int report_period = 1000;
+const int report_period = 100;
 
 
 void setup() {
@@ -47,6 +47,7 @@ void setup() {
   Serial.begin(115200);
   while (!Serial) {
   }
+  Serial.setTimeout(20);
   
  // Set 2 external interrupt pin to input and attach it's ISR
   pinMode(decoder_pin_1, INPUT);
@@ -108,7 +109,7 @@ void report_decoder_result_isr() {
   }
   
   char str[16];
-  sprintf(str, "%d,%d", decoder_pin_1_counter*18, decoder_pin_2_counter*18); // --> 360deg/20pic = 18
+  sprintf(str, "%d,%d\r\n", decoder_pin_1_counter*18, decoder_pin_2_counter*18); // --> 360deg/20pic = 18
   Serial.print(str);
 
   if (decoder_pin_1_counter == 0)

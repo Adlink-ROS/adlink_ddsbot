@@ -32,19 +32,18 @@ class BaseControl:
             for x in range(0, 50):
                 line = self.serial.readline()
                 data_array = string.split(line,",")    # Fields split
-                try:
-                    checksum = int(data_array[-1])       
-                except ValueError:
-                    continue
                 time.sleep(0.01)
         except serial.serialutil.SerialException:
             rospy.logerr("Can not receive data from the port: "+port + 
             ". Did you specify the correct port in the launch file?")
+            self.serial.close
             sys.exit(0) 
+        rospy.loginfo("Communication success !")
         # ROS handler        
         self.sub = rospy.Subscriber('cmd_vel', Twist, self.cmdCB, queue_size=10)
         self.pub = rospy.Publisher('odom', Odometry, queue_size=10)   
-        self.timer = rospy.Timer(rospy.Duration(0.02), self.timerCB) # 50Hz
+        self.timer_odom = rospy.Timer(rospy.Duration(0.02), self.timerOdomCB) # 50Hz
+        self.timer_cmd = rospy.Timer(rospy.Duration(0.1), self.timerCmdCB) # 10Hz
         # from rosparam        
         self.wheelSep = wheel_separation
         self.wheelRad = wheel_radius
@@ -60,42 +59,44 @@ class BaseControl:
         self.trans_x = data.linear.x
         self.rotat_z = data.angular.z
     
-    def timerCB(self, event):
+    def timerOdomCB(self, event):
         # Serial read & publish 
         try:
             line = self.serial.readline()
             data_array = string.split(line,",") # Fields split
             if len(data_array) == 2:
-                WL = float(data_array[0])
+                WL = float(data_array[0]) # unit: deg/sec
                 WR = float(data_array[1])
+            #print str(WL/18) + ', ' + str(WR/18) # for debug, unit: pulse/sec            
+
+            VL = WL * math.pi/180.0 * self.wheelRad # V = omega * radius, unit: m/s
+            VR = WR * math.pi/180.0 * self.wheelRad
+
+            Vyaw = (VR-VL)/self.wheelSep
+            Vx = (VR+VL)/2.0
+
+            msg = Odometry()
+            msg.header.stamp = rospy.Time.now()
+            msg.header.frame_id = self.odomId
+            msg.child_frame_id = self.baseId
+            msg.twist.twist.linear.x = Vx
+            msg.twist.twist.angular.z = Vyaw
+            for i in range(36):
+                msg.twist.covariance[i] = 1e6
+            msg.twist.covariance[0] = self.VxCov
+            msg.twist.covariance[35] = self.VyawCov
+            self.pub.publish(msg)
         except: 
-            print 'Error in sensor value !'       
-            return        
-                
-        VL = WL * math.pi/180.0 * self.wheelRad # V = omega * radius, unit: m/s
-        VR = WR * math.pi/180.0 * self.wheelRad
+            rospy.loginfo("Error in sensor value !")       
+            pass            
 
-        Vyaw = (VR-VL)/self.wheelSep
-        Vx = (VR+VL)/2.0
-
-        msg = Odometry()
-        msg.header.stamp = rospy.Time.now()
-        msg.header.frame_id = self.odomId
-        msg.child_frame_id = self.baseId
-        msg.twist.twist.linear.x = Vx
-        msg.twist.twist.angular.z = Vyaw
-        for i in range(36):
-            msg.twist.covariance[i] = 1e6
-        msg.twist.covariance[0] = self.VxCov
-        msg.twist.covariance[35] = self.VyawCov
-        self.pub.publish(msg)
-        
+    def timerCmdCB(self, event):
         # send cmd to motor
         VR = self.trans_x + self.wheelSep/2.0*self.rotat_z; # unit: m/s
         VL = self.trans_x - self.wheelSep/2.0*self.rotat_z;        
         WR = VR/self.wheelRad * 180.0/math.pi # unit: deg/sec
         WL = VL/self.wheelRad * 180.0/math.pi
-        values = ["0", "0", "0", "0"]
+        values = ['0', '0', '0', '0']
         if WL >= 0:
             values[0] = str(WL)  # left forward
         else:
@@ -105,7 +106,8 @@ class BaseControl:
         else:
             values[3] = str(-WR) # right backward
         cmd = ",".join(values).encode()
-        print cmd
+        #print cmd # for debug
+        self.serial.flushInput()
         self.serial.write(cmd)
         
 if __name__ == "__main__":
@@ -119,7 +121,7 @@ if __name__ == "__main__":
         device_port = rospy.get_param('~port', '/dev/uno') # device port
         baudrate = float( rospy.get_param('~baudrate', '115200') ) 
         wheel_separation = float( rospy.get_param('~wheel_separation', '0.15') ) # unit: meter 
-        wheel_radius = float( rospy.get_param('~wheel_radius', '0.067') ) # unit: meter
+        wheel_radius = float( rospy.get_param('~wheel_radius', '0.0335') ) # unit: meter
         vx_cov = float( rospy.get_param('~vx_cov', '0.01') ) # covariance for Vx measurement
         vyaw_cov = float( rospy.get_param('~vyaw_cov', '0.05') ) # covariance for Vyaw measurement
 
@@ -128,4 +130,5 @@ if __name__ == "__main__":
         bc = BaseControl(baseId, odomId, device_port, baudrate, wheel_separation, wheel_radius, vx_cov, vyaw_cov)
         rospy.spin()
     except KeyboardInterrupt:
+        bc.serial.close
         print("shutting down")
