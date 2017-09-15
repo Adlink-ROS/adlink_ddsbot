@@ -108,7 +108,7 @@ void report_decoder_result_isr() {
   }
   
   char str[16];
-  sprintf(str, "%d,%d\r\n", decoder_pin_1_counter, decoder_pin_2_counter);
+  sprintf(str, "%d,%d", decoder_pin_1_counter*18, decoder_pin_2_counter*18); // --> 360deg/20pic = 18
   Serial.print(str);
 
   if (decoder_pin_1_counter == 0)
@@ -137,6 +137,7 @@ String getValue(String data, char separator, int index)
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+// convert required deg/s to pwm command (feedforward)
 float convert_adc(int value) {
   return 0.1335 * value + 7.07;  
 }
