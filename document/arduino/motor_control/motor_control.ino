@@ -1,7 +1,7 @@
 /*
 Copyright 2017 ADLINK Technology Inc.
-Developer: Chester, Tseng 
-           HaoChih, LIN
+Developer: Chester, Tseng (for pySerial & encoder)
+           HaoChih, LIN (for controller)
 Email: chester.tseng@adlinktech.com
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ const int decoder_pin_2 = 2;
 // Timer internal
 const int timer_period = 50; // ms 
 const float timer_hz = 1000.0/( (float)timer_period ); // hz
+const int filter_size = 5;
+const int counter_protect = 200;
 
 // encoder
 volatile int decoder_pin_1_counter = 0;
@@ -33,12 +35,14 @@ volatile int decoder_pin_2_counter = 0;
 volatile int decoder_pin_1_delay_counter = 0;
 volatile int decoder_pin_2_delay_counter = 0;
 volatile int encoder_res = 18; // 20 pulse in a circle --> 360/20 = 18(deg/pulse)
+volatile int average_filter_pin1[filter_size] = {}; // all zeros
+volatile int average_filter_pin2[filter_size] = {}; // all zeros
 
 // controller
 volatile float WL_ref = 0.0; //reference speed for left wheel (deg/sec) 
 volatile float WR_ref = 0.0;
-volatile float Kp_L = 0.1;
-volatile float Kp_R = 0.1;
+volatile float Kp_L = 0.2; //0.11 //without loading
+volatile float Kp_R = 0.2;
 
 void setup() {
   // Set 4 pwm channel pin to output
@@ -73,21 +77,13 @@ void setup() {
 void loop() {
     if (Serial.available()) {
       String commad_string = Serial.readString();
-      String out_1 = getValue(commad_string, ',', 0); //getValue func should be removed (TBD) 
-      String out_2 = getValue(commad_string, ',', 1);
-      String out_3 = getValue(commad_string, ',', 2);
-      String out_4 = getValue(commad_string, ',', 3);
-      if (out_1 != NULL)
-        WL_ref =  out_1.toFloat(); // deg/sec
-        
-      if (out_2 != NULL)
-        WL_ref = -out_2.toFloat();
-         
-      if (out_3 != NULL)
-        WR_ref =  out_3.toFloat();
-        
-      if (out_4 != NULL)
-        WR_ref = -out_4.toFloat();
+      float out_1 = getValue(commad_string, ',', 0).toFloat(); //getValue func should be removed (TBD) 
+      float out_2 = getValue(commad_string, ',', 1).toFloat();
+      float out_3 = getValue(commad_string, ',', 2).toFloat();
+      float out_4 = getValue(commad_string, ',', 3).toFloat();
+      
+      WL_ref =  out_1 - out_2; // deg/sec, pos: forward, neg: backward
+      WR_ref =  out_3 - out_4; // deg/sec
     }
 }
 
@@ -101,16 +97,42 @@ void decoder_2_isr() {
 
 // convert required deg/s to pwm command (based on statistical)
 float feedforward(float value) {
-  return 0.1335 * value + 7.07;  
+  //return 0.1335 * value + 7.07; //withous laoding
+    return 0.4 * value;
 }
 
 void controller_repoter_isr() {
+  // copy current counter
+  int pin1_counter = decoder_pin_1_counter;
+  int pin2_counter = decoder_pin_2_counter;
+  
+  // average filter of encoder data
+  float average_counter_pin1 = 0.0;
+  for(int i=0; i<filter_size-1; i++)
+  {
+    average_filter_pin1[i] = average_filter_pin1[i+1];
+    average_counter_pin1 = average_counter_pin1 + average_filter_pin1[i+1];
+  }  
+  average_filter_pin1[filter_size-1] = pin1_counter;
+  average_counter_pin1 = average_counter_pin1 + pin1_counter;
+  average_counter_pin1 = average_counter_pin1/(float)filter_size;
+
+  float average_counter_pin2 = 0.0;
+  for(int i=0; i<filter_size-1; i++)
+  {
+    average_filter_pin2[i] = average_filter_pin2[i+1];
+    average_counter_pin2 = average_counter_pin2 + average_filter_pin2[i+1];
+  }  
+  average_filter_pin2[filter_size-1] = pin2_counter;
+  average_counter_pin2 = average_counter_pin2 + pin2_counter;
+  average_counter_pin2 = average_counter_pin2/(float)filter_size;
+  
   // controller (feedforward + feedback)
   float cmd = 0.0;
   float error = 0.0;
-  if(WL_ref >= 0.0)
+  if(WL_ref > 0.0)
   {
-    error = WL_ref - (float)(decoder_pin_1_counter*encoder_res)*timer_hz; // deg/sec
+    error = WL_ref - average_counter_pin1*(float)(encoder_res)*timer_hz; // deg/sec
     cmd = feedforward(WL_ref) + error*Kp_L;
     if(cmd>=0.0)
     {
@@ -123,10 +145,10 @@ void controller_repoter_isr() {
       analogWrite(out2_pin, -(int)cmd);
     }
   }
-  else // the encoder has no capability of distinguishing the cw/ccw rotation
+  else if(WL_ref < 0.0) // the encoder has no capability of distinguishing the cw/ccw rotation
   {
-    error = -WL_ref - (float)(decoder_pin_1_counter*encoder_res)*timer_hz; // deg/sec
-    cmd = feedforward(WL_ref) + error*Kp_L;
+    error = -WL_ref - average_counter_pin1*(float)(encoder_res)*timer_hz; // deg/sec
+    cmd = feedforward(-WL_ref) + error*Kp_L;
     if(cmd>=0.0)
     {
       analogWrite(out2_pin, (int)cmd);
@@ -138,10 +160,15 @@ void controller_repoter_isr() {
       analogWrite(out1_pin, -(int)cmd);
     }
   }
-
-  if(WR_ref >= 0.0)
+  else // == 0
   {
-    error = WR_ref - (float)(decoder_pin_2_counter*encoder_res)*timer_hz; // deg/sec
+    analogWrite(out1_pin, 0);
+    analogWrite(out2_pin, 0);
+  }
+
+  if(WR_ref > 0.0)
+  {
+    error = WR_ref - average_counter_pin2*(float)(encoder_res)*timer_hz; // deg/sec
     cmd = feedforward(WR_ref) + error*Kp_R;
     if(cmd>=0.0)
     {
@@ -154,10 +181,10 @@ void controller_repoter_isr() {
       analogWrite(out4_pin, -(int)cmd);
     }
   }
-  else // the encoder has no capability of distinguishing the cw/ccw rotation
+  else if(WR_ref < 0.0)// the encoder has no capability of distinguishing the cw/ccw rotation
   {
-    error = -WR_ref - (float)(decoder_pin_2_counter*encoder_res)*timer_hz; // deg/sec
-    cmd = feedforward(WR_ref) + error*Kp_R;
+    error = -WR_ref - average_counter_pin2*(float)(encoder_res)*timer_hz; // deg/sec
+    cmd = feedforward(-WR_ref) + error*Kp_R;
     if(cmd>=0.0)
     {
       analogWrite(out4_pin, (int)cmd);
@@ -169,17 +196,22 @@ void controller_repoter_isr() {
       analogWrite(out3_pin, -(int)cmd);
     }
   }
+  else // == 0
+  {
+    analogWrite(out3_pin, 0);
+    analogWrite(out4_pin, 0);
+  }
   
   
   // This is a workaround to prevent from motor idle when speed  = 0;
-  if (decoder_pin_1_delay_counter > (100 + WR_ref/encoder_res/timer_hz) ) {
+  if (decoder_pin_1_delay_counter > counter_protect ) {
     WR_ref = 0.0;
     analogWrite(out3_pin, 0);
     analogWrite(out4_pin, 0);
     decoder_pin_1_delay_counter = 0;
   }
   
-  if (decoder_pin_2_delay_counter > (100 + WL_ref/encoder_res/timer_hz) ) {
+  if (decoder_pin_2_delay_counter > counter_protect ) {
     WL_ref = 0.0;
     analogWrite(out1_pin, 0);
     analogWrite(out2_pin, 0);
@@ -188,15 +220,19 @@ void controller_repoter_isr() {
 
   // report encoder info (deg/sec)
   char str[16];
-  sprintf(str, "%d,%d\r\n", decoder_pin_1_counter*encoder_res
-                          , decoder_pin_2_counter*encoder_res ); // deg/sec
+  sprintf(str, "%d,%d\r\n", (int)(average_counter_pin1*(float)encoder_res*timer_hz)
+                          , (int)(average_counter_pin2*(float)encoder_res*timer_hz) ); // deg/sec
   Serial.print(str);
 
   if (decoder_pin_1_counter == 0)
     decoder_pin_1_delay_counter += 1;
+  else
+    decoder_pin_1_delay_counter = 0;
   if (decoder_pin_2_counter == 0)
     decoder_pin_2_delay_counter += 1;
-  
+  else
+    decoder_pin_2_delay_counter = 0;
+    
   decoder_pin_1_counter = 0;
   decoder_pin_2_counter = 0;
 }
