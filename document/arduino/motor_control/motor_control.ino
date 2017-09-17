@@ -16,18 +16,19 @@ limitations under the License.
 #include <MsTimer2.h>
 
 // Pin define
-const int out1_pin = 5;
-const int out2_pin = 6;
-const int out3_pin = 9;
-const int out4_pin = 10;
-const int decoder_pin_1 = 3;
-const int decoder_pin_2 = 2;
+static const int out1_pin = 5;
+static const int out2_pin = 6;
+static const int out3_pin = 9;
+static const int out4_pin = 10;
+static const int decoder_pin_1 = 3;
+static const int decoder_pin_2 = 2;
 
 // Timer internal
-const int timer_period = 50; // ms 
-const float timer_hz = 1000.0/( (float)timer_period ); // hz
-const int filter_size = 5;
-const int counter_protect = 200;
+static const int timer_period = 50; // ms 
+static const float timer_hz = 1000.0/( (float)timer_period ); // hz
+static const float timer_dt = timer_period/1000.0; // sec
+static const int filter_size = 5;
+static const int counter_protect = 200;
 
 // encoder
 volatile int decoder_pin_1_counter = 0;
@@ -41,8 +42,15 @@ volatile int average_filter_pin2[filter_size] = {}; // all zeros
 // controller
 volatile float WL_ref = 0.0; //reference speed for left wheel (deg/sec) 
 volatile float WR_ref = 0.0;
-volatile float Kp_L = 0.2; //0.11 //without loading
-volatile float Kp_R = 0.2;
+static const float Kp_L = 0.2; //0.11 //without loading
+static const float Kp_R = 0.2;
+static const float Ki_L = 0.2;
+static const float Ki_R = 0.2;
+volatile float integralL = 0.0;
+volatile float integralR = 0.0;
+static const float integral_dec = 0.99; // for position control, it should be 1.0
+static const float integral_max = 400;
+static const float integral_min = -400;
 
 void setup() {
   // Set 4 pwm channel pin to output
@@ -133,7 +141,13 @@ void controller_repoter_isr() {
   if(WL_ref > 0.0)
   {
     error = WL_ref - average_counter_pin1*(float)(encoder_res)*timer_hz; // deg/sec
-    cmd = feedforward(WL_ref) + error*Kp_L;
+    integralL = integralL*integral_dec + error*timer_dt;
+    if(integralL > integral_max)
+      integralL = integral_max;
+    if(integralL < integral_min)
+      integralL = integral_min;
+    cmd = feedforward(WL_ref) + error*Kp_L + integralL*Ki_L; // controller
+    Serial.println(cmd);
     if(cmd>=0.0)
     {
       analogWrite(out1_pin, (int)cmd);
@@ -148,7 +162,12 @@ void controller_repoter_isr() {
   else if(WL_ref < 0.0) // the encoder has no capability of distinguishing the cw/ccw rotation
   {
     error = -WL_ref - average_counter_pin1*(float)(encoder_res)*timer_hz; // deg/sec
-    cmd = feedforward(-WL_ref) + error*Kp_L;
+    integralL = integralL*integral_dec + error*timer_dt;
+    if(integralL > integral_max)
+      integralL = integral_max;
+    if(integralL < integral_min)
+      integralL = integral_min;
+    cmd = feedforward(-WL_ref) + error*Kp_L + integralL*Ki_L; // controller
     if(cmd>=0.0)
     {
       analogWrite(out2_pin, (int)cmd);
@@ -169,7 +188,12 @@ void controller_repoter_isr() {
   if(WR_ref > 0.0)
   {
     error = WR_ref - average_counter_pin2*(float)(encoder_res)*timer_hz; // deg/sec
-    cmd = feedforward(WR_ref) + error*Kp_R;
+    integralR = integralR*integral_dec + error*timer_dt;
+    if(integralR > integral_max)
+      integralR = integral_max;
+    if(integralR < integral_min)
+      integralR = integral_min;
+    cmd = feedforward(WR_ref) + error*Kp_R + integralR*Ki_R; // controller
     if(cmd>=0.0)
     {
       analogWrite(out3_pin, (int)cmd);
@@ -184,7 +208,12 @@ void controller_repoter_isr() {
   else if(WR_ref < 0.0)// the encoder has no capability of distinguishing the cw/ccw rotation
   {
     error = -WR_ref - average_counter_pin2*(float)(encoder_res)*timer_hz; // deg/sec
-    cmd = feedforward(-WR_ref) + error*Kp_R;
+    integralR = integralR*integral_dec + error*timer_dt;
+    if(integralR > integral_max)
+      integralR = integral_max;
+    if(integralR < integral_min)
+      integralR = integral_min;
+    cmd = feedforward(-WR_ref) + error*Kp_R + integralR*Ki_R; // controller
     if(cmd>=0.0)
     {
       analogWrite(out4_pin, (int)cmd);
