@@ -87,7 +87,7 @@ class BaseControl:
             msg.twist.covariance[35] = self.VyawCov
             self.pub.publish(msg)
         except: 
-            rospy.loginfo("Error in sensor value !")       
+            #rospy.loginfo("Error in sensor value !")       
             pass            
 
     def timerCmdCB(self, event):
@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
         # Get params
         baseId = rospy.get_param('~base_id', 'base_link') # base link
-        odomId = rospy.get_param('~odom_id', 'odom')      # odom link
+        odomId = rospy.get_param('~odom_id', 'base_odom')      # odom link
         device_port = rospy.get_param('~port', '/dev/uno') # device port
         baudrate = float( rospy.get_param('~baudrate', '115200') ) 
         wheel_separation = float( rospy.get_param('~wheel_separation', '0.15') ) # unit: meter 

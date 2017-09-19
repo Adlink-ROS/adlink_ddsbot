@@ -1,0 +1,14 @@
+<launch>
+    <!-- global parameter -->
+    <arg name="wheel_separation" default="0.15" /> <!-- unit: meter -->
+    <arg name="wheel_radius" default="0.0335" /> <!-- unit: meter -->   
+
+    <node name="base_control"   pkg="adlink_ddsbot"  type="base_control.py" output="screen">
+        <param name="port"       value="/dev/uno"/>
+        <param name="baudrate"   value="115200"/>   
+        <param name="base_id"    value="base_link"/> <!-- base_link name -->
+        <param name="odom_id"    value="base_odom"/> <!-- topic name of odom -->
+        <param name="wheel_separation" value="$(arg wheel_separation)"/> 
+        <param name="wheel_radius" value="$(arg wheel_radius)"/> 
+    </node>
+</launch>

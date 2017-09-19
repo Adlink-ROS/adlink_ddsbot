@@ -164,7 +164,7 @@ Visualization Manager:
           Value: true
         Value: false
       Enabled: true
-      Keep: 500
+      Keep: 100
       Name: ekf_odom
       Position Tolerance: 0.100000001
       Shape:
@@ -172,10 +172,10 @@ Visualization Manager:
         Axes Length: 1
         Axes Radius: 0.100000001
         Color: 0; 0; 255
-        Head Length: 0.300000012
-        Head Radius: 0.100000001
+        Head Length: 0.200000003
+        Head Radius: 0.0500000007
         Shaft Length: 0.200000003
-        Shaft Radius: 0.0500000007
+        Shaft Radius: 0.0199999996
         Value: Arrow
       Topic: /odometry/filtered
       Unreliable: false
@@ -198,7 +198,7 @@ Visualization Manager:
           Value: true
         Value: false
       Enabled: true
-      Keep: 500
+      Keep: 100
       Name: rf2o_odom
       Position Tolerance: 0.100000001
       Shape:
@@ -206,10 +206,10 @@ Visualization Manager:
         Axes Length: 1
         Axes Radius: 0.100000001
         Color: 255; 25; 0
-        Head Length: 0.300000012
-        Head Radius: 0.100000001
+        Head Length: 0.200000003
+        Head Radius: 0.0500000007
         Shaft Length: 0.200000003
-        Shaft Radius: 0.0500000007
+        Shaft Radius: 0.0199999996
         Value: Arrow
       Topic: /rf2o_laser_odometry/odom
       Unreliable: false
@@ -238,16 +238,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 21.0955944
+      Distance: 7.5867033
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.50251245
-        Y: 0.264938653
-        Z: -2.48701477
+        X: -0.533351421
+        Y: -0.362732887
+        Z: -2.59166741
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
@@ -274,5 +274,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1414
-  X: 75
-  Y: 34
+  X: 92
+  Y: 146

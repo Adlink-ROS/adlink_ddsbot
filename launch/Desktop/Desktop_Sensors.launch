@@ -19,12 +19,4 @@
         <arg name="wheel_radius" value="$(arg wheel_radius)"/>
     </include>
 
-    <!-- ODOMETRY -->
-    <!--rf2o_Laser_Odometry-->
-    <include file="$(find adlink_ddsbot)/launch/includes/adlink_rf2o.launch.xml" />
-    <!-- Robot_Localization -->
-    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
-        <rosparam command="load" file="$(find adlink_ddsbot)/param/adlink_ekf_params.yaml" />
-    </node>
-
 </launch>

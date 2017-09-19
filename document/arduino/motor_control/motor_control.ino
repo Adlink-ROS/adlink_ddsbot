@@ -181,6 +181,7 @@ void controller_repoter_isr() {
   }
   else // == 0
   {
+    integralL = 0.0;
     analogWrite(out1_pin, 0);
     analogWrite(out2_pin, 0);
   }
@@ -227,6 +228,7 @@ void controller_repoter_isr() {
   }
   else // == 0
   {
+    integralR = 0.0;
     analogWrite(out3_pin, 0);
     analogWrite(out4_pin, 0);
   }

@@ -4,15 +4,18 @@
     <arg name="use_rviz" default="false" />
 
     <!-- for amcl -->    
-    <arg name="init_x" default="0" />
-    <arg name="init_y" default="0" />
-    <arg name="init_a" default="0" />
+    <arg name="init_x" default="-0.112" />
+    <arg name="init_y" default="-0.091" />
+    <arg name="init_a" default="-1.563" />
 
     <!-- Map server -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find adlink_ddsbot)/map/test/map.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find adlink_ddsbot)/map/demp_gmp.yaml"/>
 
     <!-- Boot up all sensors -->
-    <include file="$(find adlink_ddsbot)/launch/Adlink_DDSBot_Sensors.launch" />
+    <include file="$(find adlink_ddsbot)/launch/Adlink_DDSBot_Sensors.launch" >
+        <arg name="wheel_separation" value="0.15"/> <!-- unit: meter -->
+        <arg name="wheel_radius" value="0.0335"/> <!-- unit: meter -->
+    </include>
 
     <!-- Localization (amcl) -->
     <include file="$(find adlink_ddsbot)/launch/includes/adlink_amcl.launch.xml">
@@ -38,8 +41,8 @@
             footprint: [[-0.1, -0.1], [-0.1, 0.1], [0.1, 0.1], [0.1, -0.1]]
             footprint_padding: 0.01
             transform_tolerance: 0.5
-            update_frequency: 20.0
-            publish_frequency: 20.0
+            update_frequency: 10.0
+            publish_frequency: 10.0
 
             global_frame: map
             robot_base_frame: base_footprint
