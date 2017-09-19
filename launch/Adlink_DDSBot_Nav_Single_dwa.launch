@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
 
 <launch>
-    <!-- ****************************** -->
-    <!-- ROS 1.0 required nodes/setting -->
-    <!-- ****************************** -->
-    <!-- Parameters for autostart -->
+    <arg name="use_rviz" default="false" />
+
     <!-- for amcl -->    
     <arg name="init_x" default="-0.112" />
     <arg name="init_y" default="-0.091" />
@@ -28,11 +26,10 @@
 
     <!-- Navstack -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-        <!-- local planner -->        
-        <param name="base_local_planner" value="robotino_local_planner/RobotinoLocalPlanner" />   
-        <rosparam file="$(find adlink_ddsbot)/param/robotina_local_planner_params.yaml" command="load"/>        
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/> 
+        <rosparam file="$(find adlink_ddsbot)/param/dwa_local_planner_params.yaml" command="load"/>   
         <!-- params for move_base -->
-        <param name="planner_frequency" value="0.2" />
+        <param name="planner_frequency" value="2" />
         <param name="controller_frequency" value="10.0" />
         <param name="controller_patience" value="3.0" />
         <param name="oscillation_timeout" value="10.0" />
@@ -78,33 +75,6 @@
         <remap from="/odom" to="/odometry/filtered"/>
     </node>
 
-    <!-- ***************************** -->
-    <!-- ROS 2.0 related nodes/setting -->
-    <!-- ***************************** -->
-    <!-- Parameters for autostart -->
-    <!-- robot id (default based on hostname) for swarm network -->    
-    <arg name="self_id" default="$(env HOSTNAME)" />
-
-    <!-- Setting for ROS 2-1 topics bridge -->
-    <rosparam param="topics">[{'topic':swarm_poses, 'type':geometry_msgs/TransformStamped}, {'topic':swarm_goals, 'type':geometry_msgs/TransformStamped}]</rosparam> 
-
-    <!-- tf to transform node -->
-    <node name="tf_to_transform"   pkg="adlink_ddsbot"  type="tf_to_transform.py" output="screen">
-        <param name="self_id" value="$(arg self_id)"/>
-        <param name="map_frame" value="map" />
-        <param name="base_frame" value="base_link" />
-    </node>
-
-    <!-- robot id filter node -->
-    <node name="robot_id_filter"   pkg="adlink_ddsbot"  type="robot_id_filter.py" output="screen">
-        <param name="self_id" value="$(arg self_id)"/>
-        <param name="map_id" value="map"/>
-        <param name="id_timeout" value="1"/> <!-- unit: sec -->
-        <param name="fake_radius" value="0.3"/> <!-- unit: meter --> 
-    </node>
-
-    <!-- Goal filter node -->
-    <node name="goal_filter"   pkg="adlink_ddsbot"  type="goal_filter.py" output="screen">
-        <param name="self_id" value="$(arg self_id)"/>
-    </node>
+    <!-- Rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find adlink_ddsbot)/rviz_cfg/adlink_amcl.rviz" if="$(arg use_rviz)" />
 </launch>

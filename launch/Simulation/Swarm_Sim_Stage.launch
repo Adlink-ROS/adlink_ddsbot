@@ -11,9 +11,8 @@
         <param name="controller_patience" value="3.0" />
         <param name="oscillation_timeout" value="30.0" />
         <param name="oscillation_distance" value="0.5" />
-        <!-- params for local control (dwa) -->
-        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
-        <rosparam file="$(find adlink_ddsbot)/launch/Simulation/includes/dwa_local_planner_params.yaml" command="load" />
+        <!-- params for local control -->
+        <param name="base_local_planner" value="robotino_local_planner/RobotinoLocalPlanner" />
         <!-- params for costmap layers -->        
         <rosparam file="$(find adlink_ddsbot)/launch/Simulation/includes/costmap_common_params.yaml" command="load" ns="local_costmap" />
         <rosparam file="$(find adlink_ddsbot)/launch/Simulation/includes/local_costmap_params.yaml" command="load" />

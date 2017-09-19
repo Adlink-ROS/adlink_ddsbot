@@ -26,10 +26,11 @@
 
     <!-- Navstack -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/> 
-        <rosparam file="$(find adlink_ddsbot)/param/dwa_local_planner_params.yaml" command="load"/>   
+        <!-- local planner -->        
+        <param name="base_local_planner" value="robotino_local_planner/RobotinoLocalPlanner" />   
+        <rosparam file="$(find adlink_ddsbot)/param/robotina_local_planner_params.yaml" command="load"/>        
         <!-- params for move_base -->
-        <param name="planner_frequency" value="2" />
+        <param name="planner_frequency" value="0.2" />
         <param name="controller_frequency" value="10.0" />
         <param name="controller_patience" value="3.0" />
         <param name="oscillation_timeout" value="10.0" />
