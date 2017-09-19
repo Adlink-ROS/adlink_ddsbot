@@ -27,7 +27,7 @@ static const int decoder_pin_2 = 2;
 static const int timer_period = 50; // ms 
 static const float timer_hz = 1000.0/( (float)timer_period ); // hz
 static const float timer_dt = timer_period/1000.0; // sec
-static const int filter_size = 5;
+static const int filter_size = 10;
 static const int counter_protect = 200;
 
 // encoder
@@ -36,19 +36,26 @@ volatile int decoder_pin_2_counter = 0;
 volatile int decoder_pin_1_delay_counter = 0;
 volatile int decoder_pin_2_delay_counter = 0;
 volatile int encoder_res = 18; // 20 pulse in a circle --> 360/20 = 18(deg/pulse)
-volatile int average_filter_pin1[filter_size] = {}; // all zeros
-volatile int average_filter_pin2[filter_size] = {}; // all zeros
+volatile int filter_pin1[filter_size] = {}; // all zeros
+volatile int filter_pin2[filter_size] = {}; // all zeros
+volatile float total_pin1 = 0.0;
+volatile float total_pin2 = 0.0;
+volatile int filterId = 0;
 
 // controller
 volatile float WL_ref = 0.0; //reference speed for left wheel (deg/sec) 
 volatile float WR_ref = 0.0;
-static const float Kp_L = 0.2; //0.11 //without loading
-static const float Kp_R = 0.2;
-static const float Ki_L = 0.2;
-static const float Ki_R = 0.2;
+static const float Kp_L = 0.25; //0.11 //without loading
+static const float Kp_R = 0.25;
+static const float Ki_L = 0.1;
+static const float Ki_R = 0.1;
+static const float Kd_L = 0.005;
+static const float Kd_R = 0.005;
 volatile float integralL = 0.0;
 volatile float integralR = 0.0;
-static const float integral_dec = 0.99; // for position control, it should be 1.0
+volatile float prev_error_L = 0.0;
+volatile float prev_error_R = 0.0;
+static const float integral_dec = 0.995; // for position control, it should be 1.0
 static const float integral_max = 400;
 static const float integral_min = -400;
 
@@ -106,7 +113,7 @@ void decoder_2_isr() {
 // convert required deg/s to pwm command (based on statistical)
 float feedforward(float value) {
   //return 0.1335 * value + 7.07; //withous laoding
-    return 0.4 * value;
+    return 0.5 * value;
 }
 
 void controller_repoter_isr() {
@@ -115,26 +122,20 @@ void controller_repoter_isr() {
   int pin2_counter = decoder_pin_2_counter;
   
   // average filter of encoder data
-  float average_counter_pin1 = 0.0;
-  for(int i=0; i<filter_size-1; i++)
-  {
-    average_filter_pin1[i] = average_filter_pin1[i+1];
-    average_counter_pin1 = average_counter_pin1 + average_filter_pin1[i+1];
-  }  
-  average_filter_pin1[filter_size-1] = pin1_counter;
-  average_counter_pin1 = average_counter_pin1 + pin1_counter;
-  average_counter_pin1 = average_counter_pin1/(float)filter_size;
-
-  float average_counter_pin2 = 0.0;
-  for(int i=0; i<filter_size-1; i++)
-  {
-    average_filter_pin2[i] = average_filter_pin2[i+1];
-    average_counter_pin2 = average_counter_pin2 + average_filter_pin2[i+1];
-  }  
-  average_filter_pin2[filter_size-1] = pin2_counter;
-  average_counter_pin2 = average_counter_pin2 + pin2_counter;
-  average_counter_pin2 = average_counter_pin2/(float)filter_size;
+  total_pin1 = total_pin1 - (float)filter_pin1[filterId];
+  total_pin2 = total_pin2 - (float)filter_pin2[filterId];
+  filter_pin1[filterId] = pin1_counter;
+  filter_pin2[filterId] = pin2_counter;
+  total_pin1 = total_pin1 + (float)filter_pin1[filterId];
+  total_pin2 = total_pin2 + (float)filter_pin2[filterId];
+  filterId = filterId + 1;
+  if(filterId >= filter_size)
+    filterId = 0;
   
+  float average_counter_pin1 = total_pin1/((float)filter_size);
+  float average_counter_pin2 = total_pin2/((float)filter_size);
+  //Serial.println(average_counter_pin2,4); //debug
+
   // controller (feedforward + feedback)
   float cmd = 0.0;
   float error = 0.0;
@@ -146,8 +147,10 @@ void controller_repoter_isr() {
       integralL = integral_max;
     if(integralL < integral_min)
       integralL = integral_min;
-    cmd = feedforward(WL_ref) + error*Kp_L + integralL*Ki_L; // controller
-    Serial.println(cmd);
+    float der_error = (error - prev_error_L)/timer_dt;  
+    prev_error_L = error;
+    cmd = feedforward(WL_ref) + error*Kp_L + integralL*Ki_L + der_error*Kd_L; // controller
+    
     if(cmd>=0.0)
     {
       analogWrite(out1_pin, (int)cmd);
@@ -167,7 +170,10 @@ void controller_repoter_isr() {
       integralL = integral_max;
     if(integralL < integral_min)
       integralL = integral_min;
-    cmd = feedforward(-WL_ref) + error*Kp_L + integralL*Ki_L; // controller
+    float der_error = (error - prev_error_L)/timer_dt;  
+    prev_error_L = error;
+    cmd = feedforward(-WL_ref) + error*Kp_L + integralL*Ki_L + der_error*Kd_L; // controller
+    
     if(cmd>=0.0)
     {
       analogWrite(out2_pin, (int)cmd);
@@ -194,7 +200,9 @@ void controller_repoter_isr() {
       integralR = integral_max;
     if(integralR < integral_min)
       integralR = integral_min;
-    cmd = feedforward(WR_ref) + error*Kp_R + integralR*Ki_R; // controller
+    float der_error = (error - prev_error_R)/timer_dt;  
+    prev_error_R = error;
+    cmd = feedforward(WR_ref) + error*Kp_R + integralR*Ki_R + der_error*Kd_R; // controller
     if(cmd>=0.0)
     {
       analogWrite(out3_pin, (int)cmd);
@@ -214,7 +222,9 @@ void controller_repoter_isr() {
       integralR = integral_max;
     if(integralR < integral_min)
       integralR = integral_min;
-    cmd = feedforward(-WR_ref) + error*Kp_R + integralR*Ki_R; // controller
+    float der_error = (error - prev_error_R)/timer_dt;  
+    prev_error_R = error;
+    cmd = feedforward(-WR_ref) + error*Kp_R + integralR*Ki_R + der_error*Kd_R; // controller
     if(cmd>=0.0)
     {
       analogWrite(out4_pin, (int)cmd);
@@ -232,6 +242,8 @@ void controller_repoter_isr() {
     analogWrite(out3_pin, 0);
     analogWrite(out4_pin, 0);
   }
+
+  
   
   
   // This is a workaround to prevent from motor idle when speed  = 0;
