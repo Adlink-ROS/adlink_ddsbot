@@ -45,20 +45,23 @@ volatile int filterId = 0;
 // controller
 volatile float WL_ref = 0.0; //reference speed for left wheel (deg/sec) 
 volatile float WR_ref = 0.0;
-static const float Kp_L = 0.15;
-static const float Kp_R = 0.15;
-static const float Ki_L = 0.45; //since the left motor of demo bot is weaker than the right
-static const float Ki_R = 0.4;
-static const float Kd_L = 0.01;
-static const float Kd_R = 0.01;
+static const float min_ref = 135.0;
+static const float max_ref = 350.0;
+static const float Kp_L = 0.2;
+static const float Kp_R = 0.2;
+static const float Ki_L = 0.35; //since the left motor of robot is weaker than the right
+static const float Ki_R = 0.35;
+static const float Kd_L = 0.015;
+static const float Kd_R = 0.015;
 volatile float integralL = 0.0;
 volatile float integralR = 0.0;
 volatile float prev_error_L = 0.0;
 volatile float prev_error_R = 0.0;
-static const float integral_dec = 1.0; // for position control, it should be 1.0
-static const float integral_max = 1000;
-static const float integral_min = -1000;
+static const float integral_dec = 0.99; // for position control, it should be 1.0
+static const float integral_max = 30;
+static const float integral_min = -30;
 static const float Kp_tilted = 0.0;
+static const int pwm_max = 160;
 
 void setup() {
   // Set 4 pwm channel pin to output
@@ -100,6 +103,49 @@ void loop() {
       
       WL_ref =  out_1 - out_2; // deg/sec, pos: forward, neg: backward
       WR_ref =  out_3 - out_4; // deg/sec
+
+      float steering =  abs(WL_ref) - abs(WR_ref);
+      
+      if(WL_ref > 0.0)
+      {
+        if( WL_ref > max_ref)
+          WL_ref = max_ref;
+        if( WL_ref < min_ref && steering > 0.0)
+          WL_ref = min_ref + steering;
+        if( WL_ref < min_ref && steering <= 0.0)
+          WL_ref = min_ref;
+      }
+      if(WL_ref < 0.0)
+      {
+        if( WL_ref < -max_ref)
+          WL_ref = -max_ref;
+        if( WL_ref > -min_ref && steering > 0.0)
+          WL_ref = -min_ref - steering;
+        if( WL_ref > -min_ref && steering <= 0.0)
+          WL_ref = -min_ref;  
+      }
+      
+      if(WR_ref > 0.0)
+      {
+        if( WR_ref > max_ref)
+          WR_ref = max_ref;
+        if( WR_ref < min_ref && steering >= 0.0)
+          WR_ref = min_ref;
+        if( WR_ref < min_ref && steering < 0.0)
+          WR_ref = min_ref - steering;  
+      }
+      if(WR_ref < 0.0)
+      {
+        if( WR_ref < -max_ref)
+          WR_ref = -max_ref;
+        if( WR_ref > -min_ref && steering >= 0.0)
+          WR_ref =  -min_ref;
+        if( WR_ref > -min_ref && steering < 0.0)
+          WR_ref = -min_ref + steering;
+      }
+      //Serial.print(WL_ref,4);
+      //Serial.print(" ");
+      //Serial.println(WR_ref,4);  
     }
 }
 
@@ -114,7 +160,7 @@ void decoder_2_isr() {
 // convert required deg/s to pwm command (based on statistical)
 float feedforward(float value) {
   //return 0.1335 * value + 7.07; //withous laoding
-    return 0.4 * value;
+    return 0.45 * value;
 }
 
 void controller_repoter_isr() {
@@ -265,14 +311,24 @@ void controller_repoter_isr() {
   }
   
   //Send pwm commannd to motor
+  if(pin1_pwm > pwm_max)
+    pin1_pwm = pwm_max;
+  if(pin2_pwm > pwm_max)
+    pin2_pwm = pwm_max;
+  if(pin3_pwm > pwm_max)
+    pin3_pwm = pwm_max;
+  if(pin4_pwm > pwm_max)
+    pin4_pwm = pwm_max;    
   analogWrite(out1_pin, pin1_pwm);//Left
   analogWrite(out2_pin, pin2_pwm);
   analogWrite(out3_pin, pin3_pwm);//Right
   analogWrite(out4_pin, pin4_pwm);
+  //Serial.println(pin1_pwm);//debug
   
   // This is a workaround to prevent from motor idle when speed  = 0;
   if (decoder_pin_1_delay_counter > counter_protect ) {
     WR_ref = 0.0;
+    integralR = 0.0;
     analogWrite(out3_pin, 0);
     analogWrite(out4_pin, 0);
     decoder_pin_1_delay_counter = 0;
@@ -280,6 +336,7 @@ void controller_repoter_isr() {
   
   if (decoder_pin_2_delay_counter > counter_protect ) {
     WL_ref = 0.0;
+    integralL = 0.0;
     analogWrite(out1_pin, 0);
     analogWrite(out2_pin, 0);
     decoder_pin_2_delay_counter = 0;
