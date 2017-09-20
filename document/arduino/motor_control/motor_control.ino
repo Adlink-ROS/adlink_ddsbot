@@ -24,10 +24,10 @@ static const int decoder_pin_1 = 3;
 static const int decoder_pin_2 = 2;
 
 // Timer internal
-static const int timer_period = 50; // ms 
+static const int timer_period = 20; // ms 
 static const float timer_hz = 1000.0/( (float)timer_period ); // hz
 static const float timer_dt = timer_period/1000.0; // sec
-static const int filter_size = 10;
+static const int filter_size = 20;
 static const int counter_protect = 200;
 
 // encoder
@@ -45,19 +45,20 @@ volatile int filterId = 0;
 // controller
 volatile float WL_ref = 0.0; //reference speed for left wheel (deg/sec) 
 volatile float WR_ref = 0.0;
-static const float Kp_L = 0.25; //0.11 //without loading
-static const float Kp_R = 0.25;
-static const float Ki_L = 0.1;
-static const float Ki_R = 0.1;
-static const float Kd_L = 0.005;
-static const float Kd_R = 0.005;
+static const float Kp_L = 0.15;
+static const float Kp_R = 0.15;
+static const float Ki_L = 0.45; //since the left motor of demo bot is weaker than the right
+static const float Ki_R = 0.4;
+static const float Kd_L = 0.01;
+static const float Kd_R = 0.01;
 volatile float integralL = 0.0;
 volatile float integralR = 0.0;
 volatile float prev_error_L = 0.0;
 volatile float prev_error_R = 0.0;
-static const float integral_dec = 0.995; // for position control, it should be 1.0
-static const float integral_max = 400;
-static const float integral_min = -400;
+static const float integral_dec = 1.0; // for position control, it should be 1.0
+static const float integral_max = 1000;
+static const float integral_min = -1000;
+static const float Kp_tilted = 0.0;
 
 void setup() {
   // Set 4 pwm channel pin to output
@@ -113,13 +114,13 @@ void decoder_2_isr() {
 // convert required deg/s to pwm command (based on statistical)
 float feedforward(float value) {
   //return 0.1335 * value + 7.07; //withous laoding
-    return 0.5 * value;
+    return 0.4 * value;
 }
 
 void controller_repoter_isr() {
   // copy current counter
-  int pin1_counter = decoder_pin_1_counter;
-  int pin2_counter = decoder_pin_2_counter;
+  int pin1_counter = decoder_pin_1_counter; // Left
+  int pin2_counter = decoder_pin_2_counter; // Right
   
   // average filter of encoder data
   total_pin1 = total_pin1 - (float)filter_pin1[filterId];
@@ -139,7 +140,12 @@ void controller_repoter_isr() {
   // controller (feedforward + feedback)
   float cmd = 0.0;
   float error = 0.0;
-  if(WL_ref > 0.0)
+  int pin1_pwm = 0;
+  int pin2_pwm = 0;
+  int pin3_pwm = 0;
+  int pin4_pwm = 0;
+  
+  if(WL_ref > 0.0) //Left wheel forward
   {
     error = WL_ref - average_counter_pin1*(float)(encoder_res)*timer_hz; // deg/sec
     integralL = integralL*integral_dec + error*timer_dt;
@@ -153,13 +159,13 @@ void controller_repoter_isr() {
     
     if(cmd>=0.0)
     {
-      analogWrite(out1_pin, (int)cmd);
-      analogWrite(out2_pin, 0);
+      pin1_pwm = (int)cmd;
+      pin2_pwm = 0;
     }
     else
     {
-      analogWrite(out1_pin, 0);
-      analogWrite(out2_pin, -(int)cmd);
+      pin1_pwm = 0;
+      pin2_pwm = -(int)cmd;
     }
   }
   else if(WL_ref < 0.0) // the encoder has no capability of distinguishing the cw/ccw rotation
@@ -176,23 +182,23 @@ void controller_repoter_isr() {
     
     if(cmd>=0.0)
     {
-      analogWrite(out2_pin, (int)cmd);
-      analogWrite(out1_pin, 0);
+      pin2_pwm = (int)cmd;
+      pin1_pwm = 0;
     }
     else
     {
-      analogWrite(out2_pin, 0);
-      analogWrite(out1_pin, -(int)cmd);
+      pin2_pwm = 0;
+      pin1_pwm = -(int)cmd;
     }
   }
   else // == 0
   {
     integralL = 0.0;
-    analogWrite(out1_pin, 0);
-    analogWrite(out2_pin, 0);
+    pin1_pwm = 0;
+    pin2_pwm = 0;
   }
 
-  if(WR_ref > 0.0)
+  if(WR_ref > 0.0) //Right wheel forward
   {
     error = WR_ref - average_counter_pin2*(float)(encoder_res)*timer_hz; // deg/sec
     integralR = integralR*integral_dec + error*timer_dt;
@@ -205,13 +211,13 @@ void controller_repoter_isr() {
     cmd = feedforward(WR_ref) + error*Kp_R + integralR*Ki_R + der_error*Kd_R; // controller
     if(cmd>=0.0)
     {
-      analogWrite(out3_pin, (int)cmd);
-      analogWrite(out4_pin, 0);
+      pin3_pwm = (int)cmd;
+      pin4_pwm = 0;
     }
     else
     {
-      analogWrite(out3_pin, 0);
-      analogWrite(out4_pin, -(int)cmd);
+      pin3_pwm = 0;
+      pin4_pwm = -(int)cmd;
     }
   }
   else if(WR_ref < 0.0)// the encoder has no capability of distinguishing the cw/ccw rotation
@@ -227,24 +233,42 @@ void controller_repoter_isr() {
     cmd = feedforward(-WR_ref) + error*Kp_R + integralR*Ki_R + der_error*Kd_R; // controller
     if(cmd>=0.0)
     {
-      analogWrite(out4_pin, (int)cmd);
-      analogWrite(out3_pin, 0);
+      pin4_pwm = (int)cmd;
+      pin3_pwm = 0;
     }
     else
     {
-      analogWrite(out4_pin, 0);
-      analogWrite(out3_pin, -(int)cmd);
+      pin4_pwm = 0;
+      pin3_pwm = -(int)cmd;
     }
   }
   else // == 0
   {
     integralR = 0.0;
-    analogWrite(out3_pin, 0);
-    analogWrite(out4_pin, 0);
+    pin3_pwm = 0;
+    pin4_pwm = 0;
   }
 
+  // Forward straight guaranteed func
+  if(WR_ref == WL_ref && WL_ref > 0.0)
+  {
+    int error_tilted = pin1_counter - pin2_counter; //Left - Right
+    int compensation = (int)(  ((float)(error_tilted*encoder_res))*timer_hz*Kp_tilted  );
+    if(error_tilted > 0) //Left is faster than right 
+    {
+      pin3_pwm = pin3_pwm + compensation;
+    }
+    else if(error_tilted < 0)
+    {
+      pin1_pwm = pin1_pwm + compensation;
+    }
+  }
   
-  
+  //Send pwm commannd to motor
+  analogWrite(out1_pin, pin1_pwm);//Left
+  analogWrite(out2_pin, pin2_pwm);
+  analogWrite(out3_pin, pin3_pwm);//Right
+  analogWrite(out4_pin, pin4_pwm);
   
   // This is a workaround to prevent from motor idle when speed  = 0;
   if (decoder_pin_1_delay_counter > counter_protect ) {
