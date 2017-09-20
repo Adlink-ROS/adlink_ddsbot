@@ -2,6 +2,7 @@
 
 <launch>
     <arg name="use_rviz" default="false" />
+    <arg name="use_dwa" default="false" />
 
     <!-- for amcl -->    
     <arg name="init_x" default="-0.112" />
@@ -26,8 +27,10 @@
 
     <!-- Navstack -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" >
-        <!-- local planner -->        
-        <rosparam file="$(find adlink_ddsbot)/param/base_local_planner_params.yaml" command="load"/>        
+        <!-- local planner -->   
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" if="$(arg use_dwa)"/>      
+        <rosparam file="$(find adlink_ddsbot)/param/dwa_local_planner_params.yaml" command="load" if="$(arg use_dwa)"/>
+        <rosparam file="$(find adlink_ddsbot)/param/base_local_planner_params.yaml" command="load" unless="$(arg use_dwa)" />         
         <!-- params for move_base -->
         <param name="planner_frequency" value="0.1" />
         <param name="controller_frequency" value="10.0" />
@@ -36,7 +39,6 @@
         <param name="oscillation_distance" value="0.2" />
         <param name="clearing_rotation_allowed" value="false" />
         <!-- params for costmap layers --> 
-        <rosparam file="$(find adlink_ddsbot)/param/costmap_common_params.yaml" command="load" ns="local_costmap"/>
         <rosparam file="$(find adlink_ddsbot)/param/local_costmap_params.yaml" command="load"/>
         <rosparam file="$(find adlink_ddsbot)/param/global_costmap_params.yaml" command="load"/>
         <remap from="/odom" to="/odometry/filtered"/>
