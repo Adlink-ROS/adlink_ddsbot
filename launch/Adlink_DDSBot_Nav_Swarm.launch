@@ -68,7 +68,7 @@
         <param name="self_id" value="$(arg self_id)"/>
         <param name="map_id" value="map"/>
         <param name="id_timeout" value="1"/> <!-- unit: sec -->
-        <param name="fake_radius" value="0.3"/> <!-- unit: meter --> 
+        <param name="fake_radius" value="0.15"/> <!-- unit: meter --> 
     </node>
 
     <!-- Goal filter node -->
