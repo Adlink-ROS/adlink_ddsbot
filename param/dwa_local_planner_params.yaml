@@ -5,21 +5,21 @@ DWAPlannerROS:
   acc_lim_y: 0.0 
 
 
-  max_vel_x: 0.2 
+  max_vel_x: 0.12 
   min_vel_x: -0.06 
 
   max_vel_y: 0.0 
   min_vel_y: 0.0
 
-  max_trans_vel: 0.2 
-  min_trans_vel: 0.07 
+  max_trans_vel: 0.12 
+  min_trans_vel: 0.06 
   max_rot_vel: 1.0
   min_rot_vel: 0.6
 
   sim_time: 2.0
 
   sim_granularity: 0.05
-  goal_distance_bias: 1.0 
+  goal_distance_bias: 2.0 
   path_distance_bias: 64.0 
   occdist_scale: 0.01 
   stop_time_buffer: 0.2 

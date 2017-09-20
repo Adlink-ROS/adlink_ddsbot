@@ -1,9 +1,9 @@
 RobotinoLocalPlanner: 
-  max_linear_vel: 0.10 
-  min_linear_vel: 0.075
-  max_rotation_vel: 1.0 
+  max_linear_vel: 0.09 
+  min_linear_vel: 0.06
+  max_rotation_vel: 0.8 
   min_rotation_vel: 0.6 
   yaw_goal_tolerance: 1.0 
-  xy_goal_tolerance: 0.2 
-  num_window_points: 10.0
+  xy_goal_tolerance: 0.15 
+  num_window_points: 3.0
 

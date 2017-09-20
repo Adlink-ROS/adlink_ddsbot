@@ -41,7 +41,7 @@ class BaseControl:
         rospy.loginfo("Communication success !")
         # ROS handler        
         self.sub = rospy.Subscriber('cmd_vel', Twist, self.cmdCB, queue_size=10)
-        self.pub = rospy.Publisher('odom', Odometry, queue_size=10)   
+        self.pub = rospy.Publisher('base_odom', Odometry, queue_size=10)   
         self.timer_odom = rospy.Timer(rospy.Duration(0.02), self.timerOdomCB) # 50Hz
         self.timer_cmd = rospy.Timer(rospy.Duration(0.1), self.timerCmdCB) # 10Hz
         # from rosparam        

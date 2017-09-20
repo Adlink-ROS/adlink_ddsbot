@@ -39,7 +39,7 @@
         <rosparam file="$(find adlink_ddsbot)/param/costmap_common_params.yaml" command="load" ns="local_costmap"/>
         <rosparam file="$(find adlink_ddsbot)/param/local_costmap_params.yaml" command="load"/>
         <rosparam ns="global_costmap" subst_value="true">  
-            footprint: [[-0.1, -0.1], [-0.1, 0.1], [0.1, 0.1], [0.1, -0.1]]
+            footprint: [[-0.05, -0.05], [-0.05, 0.05], [0.05, 0.05], [0.05, -0.05]]
             footprint_padding: 0.01
             transform_tolerance: 0.5
             update_frequency: 10.0
