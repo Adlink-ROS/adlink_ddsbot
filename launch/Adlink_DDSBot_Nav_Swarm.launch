@@ -4,7 +4,8 @@
     <!-- ****************************** -->
     <!-- ROS 1.0 required nodes/setting -->
     <!-- ****************************** -->
-    <!-- Parameters for autostart -->
+    <arg name="use_dwa" default="false" />
+
     <!-- for amcl -->    
     <arg name="init_x" default="-0.112" />
     <arg name="init_y" default="-0.091" />
@@ -27,54 +28,21 @@
     </include>
 
     <!-- Navstack -->
-    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-        <!-- local planner -->        
-        <param name="base_local_planner" value="robotino_local_planner/RobotinoLocalPlanner" />   
-        <rosparam file="$(find adlink_ddsbot)/param/robotina_local_planner_params.yaml" command="load"/>        
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" >
+        <!-- local planner -->   
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" if="$(arg use_dwa)"/>      
+        <rosparam file="$(find adlink_ddsbot)/param/dwa_local_planner_params.yaml" command="load" if="$(arg use_dwa)"/>
+        <rosparam file="$(find adlink_ddsbot)/param/base_local_planner_params.yaml" command="load" unless="$(arg use_dwa)" />         
         <!-- params for move_base -->
-        <param name="planner_frequency" value="0.2" />
+        <param name="planner_frequency" value="0.1" />
         <param name="controller_frequency" value="10.0" />
         <param name="controller_patience" value="3.0" />
         <param name="oscillation_timeout" value="10.0" />
         <param name="oscillation_distance" value="0.2" />
+        <param name="clearing_rotation_allowed" value="false" />
         <!-- params for costmap layers --> 
-        <rosparam file="$(find adlink_ddsbot)/param/costmap_common_params.yaml" command="load" ns="local_costmap"/>
         <rosparam file="$(find adlink_ddsbot)/param/local_costmap_params.yaml" command="load"/>
-        <rosparam ns="global_costmap" subst_value="true">  
-            footprint: [[-0.1, -0.1], [-0.1, 0.1], [0.1, 0.1], [0.1, -0.1]]
-            footprint_padding: 0.01
-            transform_tolerance: 0.5
-            update_frequency: 10.0
-            publish_frequency: 10.0
-
-            global_frame: map
-            robot_base_frame: base_footprint
-            resolution: 0.05
-
-            rolling_window: false
-            track_unknown_space: true
-
-            plugins: 
-                - {name: static,           type: "costmap_2d::StaticLayer"}            
-                #- {name: sensor,           type: "costmap_2d::ObstacleLayer"}
-                - {name: swarm_layer,      type: "ddsbot_swarm_layer::SwarmLayer"}
-                - {name: inflation,        type: "costmap_2d::InflationLayer"}
-
-            static:        
-                map_topic: /map 
-                subscribe_to_updates: true
-
-            #sensor:
-                #observation_sources: base_scan
-                #base_scan: {data_type: LaserScan, expected_update_rate: 0.4, observation_persistence: 0.0, marking: true, clearing: true, max_obstacle_height: 0.4, min_obstacle_height: 0.08}
-
-            swarm_layer:
-               enabled:               true
-
-            inflation:
-                inflation_radius: 0.55
-                cost_scaling_factor: 10.0
-        </rosparam>  
+        <rosparam file="$(find adlink_ddsbot)/param/global_costmap_params.yaml" command="load"/>
         <remap from="/odom" to="/odometry/filtered"/>
     </node>
 
