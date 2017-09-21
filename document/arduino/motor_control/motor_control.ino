@@ -17,6 +17,7 @@ limitations under the License.
 
 // Debug param
 static const bool debug_mode = false; //for pySerial communication
+static const bool odom_pub = false; //publishing odom info (debug)
 
 // Pin define
 static const int out1_pin = 5;//Left
@@ -359,14 +360,19 @@ void controller_repoter_isr() {
   }
 
   // report encoder info (deg/sec)
-  if(!debug_mode)
+  if(odom_pub)
   {
     char str[16];
     sprintf(str, "%d,%d\r\n", (int)(average_counter_pin1*(float)encoder_res*timer_hz)
                             , (int)(average_counter_pin2*(float)encoder_res*timer_hz) ); // deg/sec
     Serial.print(str);
   }
-  else//debug mode
+  else
+  {
+    Serial.print("0,0\r\n");
+  }
+  
+  if(debug_mode)//debug mode
   {
     char str[96];
     sprintf(str, "%d,%d, %d,%d, %d,%d, %d,%d, %d,%d,%d,%d\r\n", 
