@@ -1,0 +1,8 @@
+# Install the latest version of mrpt
+$ sudo add-apt-repository ppa:joseluisblancoc/mrpt
+$ sudo apt-get update
+$ sudo apt-get install libmrpt-dev mrpt-apps
+
+# convert pgm to gridmap
+$ image2gridmap -i map.pgm -r 0.06 -o map.gridmap
+(link: https://www.mrpt.org/list-of-mrpt-apps/application-image2gridmap/)

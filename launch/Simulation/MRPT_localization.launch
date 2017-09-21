@@ -1,0 +1,23 @@
+<launch>
+
+  <include file="$(find mrpt_localization)/launch/demo_rviz_part_only.launch" />
+
+  <include file="$(find mrpt_rawlog)/launch/demo_rosbag.launch" />
+
+  <node pkg="mrpt_localization" type="mrpt_localization_node" name="mrpt_localization_node" output="screen">
+    <param name="ini_file" value="$(find adlink_ddsbot)/launch/Simulation/includes/pf-localization.ini"/> 
+    <param name="map_file" value="$(find adlink_ddsbot)/launch/Simulation/includes/map.gridmap"/> 
+    <param name="odom_frame_id" value="r1/odom"/> 
+    <param name="global_frame_id" value="/map"/> 
+    <param name="base_frame_id" value="r1/base_link"/> 
+    <param name="map_update_skip" value="20"/> 
+    <param name="particlecloud_update_skip" value="1"/> 
+    <param name="tf_prefix" value=""/> 
+    <param name="debug" value="true"/>
+    <param name="gui_mrpt" value="true"/> 
+    <param name="sensor_sources" value="r1/front_laser/scan"/>
+    <remap from="particlecloud" to="r1/particlecloud"/>
+  </node>
+
+</launch>
+
