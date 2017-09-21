@@ -16,7 +16,7 @@ limitations under the License.
 #include <MsTimer2.h>
 
 // Debug param
-static const bool debug_mode = false; //for pySerial communication
+static const bool debug_mode = true; //for pySerial communication
 
 // Pin define
 static const int out1_pin = 5;//Left
@@ -50,22 +50,22 @@ volatile float WL_ref = 0.0; //reference speed for left wheel (deg/sec)
 volatile float WR_ref = 0.0;
 volatile float WL_prev = 0.0;
 volatile float WR_prev = 0.0;
-static const float min_ref = 100.0;
-static const float max_ref = 350.0;
+static const float min_ref = 135.0;
+static const float max_ref = 250.0;
 static const float Kp_L = 0.2;
 static const float Kp_R = 0.2;
 static const float Ki_L = 0.35; 
 static const float Ki_R = 0.35;
-static const float Kd_L = 0.015;
-static const float Kd_R = 0.015;
+static const float Kd_L = 0.012;
+static const float Kd_R = 0.012;
 volatile float integralL = 0.0;
 volatile float integralR = 0.0;
 volatile float prev_error_L = 0.0;
 volatile float prev_error_R = 0.0;
 static const float integral_dec = 0.99; // for position control, it should be 1.0
-static const float integral_max = 100;
-static const float integral_min = -100;
-static const int pwm_max = 160;
+static const float integral_max = 30;
+static const float integral_min = -30;
+static const int pwm_max = 140;
 
 void setup() {
   // Set 4 pwm channel pin to output
@@ -100,12 +100,14 @@ void setup() {
 void loop() {
     if (Serial.available()) {
       String commad_string = Serial.readString();
-      String checksum = getValue(commad_string, ',', 2);
-      if(checksum.toInt() != (commad_string.length()-2-checksum.length()) )
-        return;
-      WL_ref = getValue(commad_string, ',', 0).toFloat(); //getValue func should be removed (TBD) 
-      WR_ref = getValue(commad_string, ',', 1).toFloat();  
+      float out_1 = getValue(commad_string, ',', 0).toFloat(); //getValue func should be removed (TBD) 
+      float out_2 = getValue(commad_string, ',', 1).toFloat();
+      float out_3 = getValue(commad_string, ',', 2).toFloat();
+      float out_4 = getValue(commad_string, ',', 3).toFloat();
       
+      WL_ref =  out_1 - out_2; // deg/sec, pos: forward, neg: backward
+      WR_ref =  out_3 - out_4; // deg/sec
+
       float steering =  abs(WL_ref) - abs(WR_ref);
       
       if(WL_ref > 0.0)
@@ -397,10 +399,8 @@ String getValue(String data, char separator, int index)
   int strIndex[] = {0, -1};
   int maxIndex = data.length()-1;
 
-  for(int i=0; i<=maxIndex && found<=index; i++)
-  {
-    if(data.charAt(i)==separator || i==maxIndex)
-    {
+  for(int i=0; i<=maxIndex && found<=index; i++){
+    if(data.charAt(i)==separator || i==maxIndex){
         found++;
         strIndex[0] = strIndex[1]+1;
         strIndex[1] = (i == maxIndex) ? i+1 : i;
