@@ -45,14 +45,16 @@ volatile int filterId = 0;
 // controller
 volatile float WL_ref = 0.0; //reference speed for left wheel (deg/sec) 
 volatile float WR_ref = 0.0;
+volatile float WL_prev = 0.0;
+volatile float WR_prev = 0.0;
 static const float min_ref = 135.0;
-static const float max_ref = 350.0;
+static const float max_ref = 250.0;
 static const float Kp_L = 0.2;
 static const float Kp_R = 0.2;
 static const float Ki_L = 0.35; 
 static const float Ki_R = 0.35;
-static const float Kd_L = 0.015;
-static const float Kd_R = 0.015;
+static const float Kd_L = 0.012;
+static const float Kd_R = 0.012;
 volatile float integralL = 0.0;
 volatile float integralR = 0.0;
 volatile float prev_error_L = 0.0;
@@ -61,7 +63,7 @@ static const float integral_dec = 0.99; // for position control, it should be 1.
 static const float integral_max = 30;
 static const float integral_min = -30;
 static const float Kp_tilted = 0.0;
-static const int pwm_max = 160;
+static const int pwm_max = 140;
 
 void setup() {
   // Set 4 pwm channel pin to output
@@ -80,7 +82,7 @@ void setup() {
   Serial.begin(115200);
   while (!Serial) {
   }
-  Serial.setTimeout(20);
+  Serial.setTimeout(50); //20Hz
   
  // Set 2 external interrupt pin to input and attach it's ISR
   pinMode(decoder_pin_1, INPUT);
@@ -179,7 +181,7 @@ void controller_repoter_isr() {
   if(filterId >= filter_size)
     filterId = 0;
   
-  float average_counter_pin1 = total_pin1/((float)filter_size);
+  float average_counter_pin1 = total_pin1/((float)filter_size); //Left
   float average_counter_pin2 = total_pin2/((float)filter_size);
   //Serial.println(average_counter_pin2,4); //debug
 
@@ -190,10 +192,37 @@ void controller_repoter_isr() {
   int pin2_pwm = 0;
   int pin3_pwm = 0;
   int pin4_pwm = 0;
-  
-  if(WL_ref > 0.0) //Left wheel forward
+
+  //Serial.println(integralL,4);
+  // copy current motor referrence
+  float WL_tmp = WL_ref;
+  float WR_tmp = WR_ref;
+  if( WL_tmp >= 0.0 && WL_prev < 0.0 )
   {
-    error = WL_ref - average_counter_pin1*(float)(encoder_res)*timer_hz; // deg/sec
+    prev_error_L = 0.0;
+    integralL = 0.0;
+  }
+  if( WL_tmp < 0.0 && WL_prev >= 0.0 )
+  {
+    prev_error_L = 0.0;
+    integralL = 0.0;
+  }
+
+  if( WR_tmp >= 0.0 && WR_prev < 0.0 )
+  {
+    prev_error_R = 0.0;
+    integralR = 0.0;
+  }
+  if( WR_tmp < 0.0 && WR_prev >= 0.0 )
+  {
+    prev_error_R = 0.0;
+    integralR = 0.0;
+  }
+
+
+  if(WL_tmp > 0.0) //Left wheel forward
+  {
+    error = WL_tmp - average_counter_pin1*(float)(encoder_res)*timer_hz; // deg/sec
     integralL = integralL*integral_dec + error*timer_dt;
     if(integralL > integral_max)
       integralL = integral_max;
@@ -201,7 +230,7 @@ void controller_repoter_isr() {
       integralL = integral_min;
     float der_error = (error - prev_error_L)/timer_dt;  
     prev_error_L = error;
-    cmd = feedforward(WL_ref) + error*Kp_L + integralL*Ki_L + der_error*Kd_L; // controller
+    cmd = feedforward(WL_tmp) + error*Kp_L + integralL*Ki_L + der_error*Kd_L; // controller
     
     if(cmd>=0.0)
     {
@@ -214,9 +243,9 @@ void controller_repoter_isr() {
       pin2_pwm = -(int)cmd;
     }
   }
-  else if(WL_ref < 0.0) // the encoder has no capability of distinguishing the cw/ccw rotation
+  else if(WL_tmp < 0.0) // the encoder has no capability of distinguishing the cw/ccw rotation
   {
-    error = -WL_ref - average_counter_pin1*(float)(encoder_res)*timer_hz; // deg/sec
+    error = -WL_tmp - average_counter_pin1*(float)(encoder_res)*timer_hz; // deg/sec
     integralL = integralL*integral_dec + error*timer_dt;
     if(integralL > integral_max)
       integralL = integral_max;
@@ -224,7 +253,7 @@ void controller_repoter_isr() {
       integralL = integral_min;
     float der_error = (error - prev_error_L)/timer_dt;  
     prev_error_L = error;
-    cmd = feedforward(-WL_ref) + error*Kp_L + integralL*Ki_L + der_error*Kd_L; // controller
+    cmd = feedforward(-WL_tmp) + error*Kp_L + integralL*Ki_L + der_error*Kd_L; // controller
     
     if(cmd>=0.0)
     {
@@ -239,14 +268,15 @@ void controller_repoter_isr() {
   }
   else // == 0
   {
+    prev_error_L = 0.0;
     integralL = 0.0;
     pin1_pwm = 0;
     pin2_pwm = 0;
   }
 
-  if(WR_ref > 0.0) //Right wheel forward
+  if(WR_tmp > 0.0) //Right wheel forward
   {
-    error = WR_ref - average_counter_pin2*(float)(encoder_res)*timer_hz; // deg/sec
+    error = WR_tmp - average_counter_pin2*(float)(encoder_res)*timer_hz; // deg/sec
     integralR = integralR*integral_dec + error*timer_dt;
     if(integralR > integral_max)
       integralR = integral_max;
@@ -254,7 +284,7 @@ void controller_repoter_isr() {
       integralR = integral_min;
     float der_error = (error - prev_error_R)/timer_dt;  
     prev_error_R = error;
-    cmd = feedforward(WR_ref) + error*Kp_R + integralR*Ki_R + der_error*Kd_R; // controller
+    cmd = feedforward(WR_tmp) + error*Kp_R + integralR*Ki_R + der_error*Kd_R; // controller
     if(cmd>=0.0)
     {
       pin3_pwm = (int)cmd;
@@ -266,9 +296,9 @@ void controller_repoter_isr() {
       pin4_pwm = -(int)cmd;
     }
   }
-  else if(WR_ref < 0.0)// the encoder has no capability of distinguishing the cw/ccw rotation
+  else if(WR_tmp < 0.0)// the encoder has no capability of distinguishing the cw/ccw rotation
   {
-    error = -WR_ref - average_counter_pin2*(float)(encoder_res)*timer_hz; // deg/sec
+    error = -WR_tmp - average_counter_pin2*(float)(encoder_res)*timer_hz; // deg/sec
     integralR = integralR*integral_dec + error*timer_dt;
     if(integralR > integral_max)
       integralR = integral_max;
@@ -276,7 +306,7 @@ void controller_repoter_isr() {
       integralR = integral_min;
     float der_error = (error - prev_error_R)/timer_dt;  
     prev_error_R = error;
-    cmd = feedforward(-WR_ref) + error*Kp_R + integralR*Ki_R + der_error*Kd_R; // controller
+    cmd = feedforward(-WR_tmp) + error*Kp_R + integralR*Ki_R + der_error*Kd_R; // controller
     if(cmd>=0.0)
     {
       pin4_pwm = (int)cmd;
@@ -290,13 +320,14 @@ void controller_repoter_isr() {
   }
   else // == 0
   {
+    prev_error_R = 0.0;
     integralR = 0.0;
     pin3_pwm = 0;
     pin4_pwm = 0;
   }
 
   // Forward straight guaranteed func
-  if(WR_ref == WL_ref && WL_ref > 0.0)
+  if(WR_tmp == WL_tmp && WL_tmp > 0.0)
   {
     int error_tilted = pin1_counter - pin2_counter; //Left - Right
     int compensation = (int)(  ((float)(error_tilted*encoder_res))*timer_hz*Kp_tilted  );
@@ -309,6 +340,10 @@ void controller_repoter_isr() {
       pin1_pwm = pin1_pwm + compensation;
     }
   }
+
+  // update previous referrence
+  WL_prev = WL_tmp;
+  WR_prev = WR_tmp;
   
   //Send pwm commannd to motor
   if(pin1_pwm > pwm_max)
@@ -327,7 +362,7 @@ void controller_repoter_isr() {
   
   // This is a workaround to prevent from motor idle when speed  = 0;
   if (decoder_pin_1_delay_counter > counter_protect ) {
-    WR_ref = 0.0;
+    WR_tmp = WR_ref = 0.0;
     integralR = 0.0;
     analogWrite(out3_pin, 0);
     analogWrite(out4_pin, 0);
@@ -335,7 +370,7 @@ void controller_repoter_isr() {
   }
   
   if (decoder_pin_2_delay_counter > counter_protect ) {
-    WL_ref = 0.0;
+    WL_tmp = WL_ref = 0.0;
     integralL = 0.0;
     analogWrite(out1_pin, 0);
     analogWrite(out2_pin, 0);

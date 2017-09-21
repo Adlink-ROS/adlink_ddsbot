@@ -10,7 +10,7 @@
     <arg name="init_a" default="-1.563" />
 
     <!-- Map server -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find adlink_ddsbot)/map/demp_gmp.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find adlink_ddsbot)/map/demo_gmp.yaml"/>
 
     <!-- Boot up all sensors -->
     <include file="$(find adlink_ddsbot)/launch/Adlink_DDSBot_Sensors.launch" >

@@ -1,5 +1,5 @@
 global_costmap:
-    footprint: [[-0.05, -0.05], [-0.05, 0.05], [0.05, 0.05], [0.05, -0.05]]
+    footprint: [[-0.1, -0.1], [-0.1, 0.1], [0.1, 0.1], [0.1, -0.1]]
     footprint_padding: 0.01
     transform_tolerance: 0.5
     update_frequency: 20.0
