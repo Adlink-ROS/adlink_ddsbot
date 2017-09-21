@@ -16,12 +16,12 @@ limitations under the License.
 #include <MsTimer2.h>
 
 // Pin define
-static const int out1_pin = 5;
+static const int out1_pin = 5;//Left
 static const int out2_pin = 6;
-static const int out3_pin = 9;
+static const int out3_pin = 9;//Right
 static const int out4_pin = 10;
-static const int decoder_pin_1 = 3;
-static const int decoder_pin_2 = 2;
+static const int decoder_pin_1 = 3;//Left
+static const int decoder_pin_2 = 2;//Right
 
 // Timer internal
 static const int timer_period = 20; // ms 
@@ -49,7 +49,7 @@ static const float min_ref = 135.0;
 static const float max_ref = 350.0;
 static const float Kp_L = 0.2;
 static const float Kp_R = 0.2;
-static const float Ki_L = 0.35; //since the left motor of robot is weaker than the right
+static const float Ki_L = 0.35; 
 static const float Ki_R = 0.35;
 static const float Kd_L = 0.015;
 static const float Kd_R = 0.015;
