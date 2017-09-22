@@ -18,6 +18,7 @@
     <include file="$(find adlink_ddsbot)/launch/Adlink_DDSBot_Sensors.launch" >
         <arg name="wheel_separation" value="0.15"/> <!-- unit: meter -->
         <arg name="wheel_radius" value="0.0335"/> <!-- unit: meter -->
+        <arg name="use_laser_odom" value="true" />
     </include>
 
     <!-- Localization (amcl) -->
@@ -30,7 +31,7 @@
     <!-- Navstack -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" >
         <!-- global planner -->
-        <param name="NavfnROS/use_grid_path" value="true" />
+        <param name="use_grid_path" value="true" />
         <!-- local planner -->   
         <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" if="$(arg use_dwa)"/>      
         <rosparam file="$(find adlink_ddsbot)/param/dwa_local_planner_params.yaml" command="load" if="$(arg use_dwa)"/>

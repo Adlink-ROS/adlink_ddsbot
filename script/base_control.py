@@ -137,7 +137,7 @@ if __name__ == "__main__":
         wheel_separation = float( rospy.get_param('~wheel_separation', '0.15') ) # unit: meter 
         wheel_radius = float( rospy.get_param('~wheel_radius', '0.0335') ) # unit: meter
         vx_cov = float( rospy.get_param('~vx_cov', '0.01') ) # covariance for Vx measurement
-        vyaw_cov = float( rospy.get_param('~vyaw_cov', '0.05') ) # covariance for Vyaw measurement
+        vyaw_cov = float( rospy.get_param('~vyaw_cov', '0.5') ) # covariance for Vyaw measurement
         debug_mode = bool( rospy.get_param('~debug_mode', 'false') ) # true for detail info
 
         # Constract BaseControl Obj

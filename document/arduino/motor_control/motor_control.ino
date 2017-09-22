@@ -17,7 +17,7 @@ limitations under the License.
 
 // Debug param
 static const bool debug_mode = false; //for pySerial communication
-static const bool odom_pub = false; //publishing odom info (debug)
+static const bool odom_pub = true; //publishing odom info (debug)
 
 // Pin define
 static const int out1_pin = 5;//Left
@@ -45,6 +45,8 @@ volatile int filter_pin2[filter_size] = {}; // all zeros
 volatile float total_pin1 = 0.0;
 volatile float total_pin2 = 0.0;
 volatile int filterId = 0;
+volatile int odom_signL = 1;
+volatile int odom_signR = 1;
 
 // controller
 volatile float WL_ref = 0.0; //reference speed for left wheel (deg/sec) 
@@ -236,11 +238,13 @@ void controller_repoter_isr() {
     {
       pin1_pwm = (int)cmd;
       pin2_pwm = 0;
+      odom_signL = 1;
     }
     else
     {
       pin1_pwm = 0;
       pin2_pwm = -(int)cmd;
+      odom_signL = -1;
     }
   }
   else if(WL_tmp < 0.0) // the encoder has no capability of distinguishing the cw/ccw rotation
@@ -259,11 +263,13 @@ void controller_repoter_isr() {
     {
       pin2_pwm = (int)cmd;
       pin1_pwm = 0;
+      odom_signL = -1;
     }
     else
     {
       pin2_pwm = 0;
       pin1_pwm = -(int)cmd;
+      odom_signL = 1;
     }
   }
   else // == 0
@@ -289,11 +295,13 @@ void controller_repoter_isr() {
     {
       pin3_pwm = (int)cmd;
       pin4_pwm = 0;
+      odom_signR = 1;
     }
     else
     {
       pin3_pwm = 0;
       pin4_pwm = -(int)cmd;
+      odom_signR = -1;
     }
   }
   else if(WR_tmp < 0.0)// the encoder has no capability of distinguishing the cw/ccw rotation
@@ -311,11 +319,13 @@ void controller_repoter_isr() {
     {
       pin4_pwm = (int)cmd;
       pin3_pwm = 0;
+      odom_signR = -1;
     }
     else
     {
       pin4_pwm = 0;
       pin3_pwm = -(int)cmd;
+      odom_signR = 1;
     }
   }
   else // == 0
@@ -367,8 +377,8 @@ void controller_repoter_isr() {
   if(odom_pub)
   {
     char str[16];
-    sprintf(str, "%d,%d\r\n", (int)(average_counter_pin1*(float)encoder_res*timer_hz)
-                            , (int)(average_counter_pin2*(float)encoder_res*timer_hz) ); // deg/sec
+    sprintf(str, "%d,%d\r\n", odom_signL*(int)(average_counter_pin1*(float)encoder_res*timer_hz)
+                            , odom_signR*(int)(average_counter_pin2*(float)encoder_res*timer_hz) ); // deg/sec
     Serial.print(str);
   }
   else

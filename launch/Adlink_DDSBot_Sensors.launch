@@ -4,6 +4,7 @@
     <!-- global parameter -->
     <arg name="wheel_separation" default="0.15" /> <!-- unit: meter -->
     <arg name="wheel_radius" default="0.0335" /> <!-- unit: meter -->   
+    <arg name="use_laser_odom" default="true" />
 
     <!-- TF setting -->
     <include file="$(find adlink_ddsbot)/launch/includes/adlink_ddsbot_tf.launch.xml" />
@@ -21,10 +22,11 @@
 
     <!-- ODOMETRY -->
     <!--rf2o_Laser_Odometry-->
-    <include file="$(find adlink_ddsbot)/launch/includes/adlink_rf2o.launch.xml" />
+    <include file="$(find adlink_ddsbot)/launch/includes/adlink_rf2o.launch.xml" if="$(arg use_laser_odom)"/>
     <!-- Robot_Localization -->
     <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
-        <rosparam command="load" file="$(find adlink_ddsbot)/param/adlink_ekf_params.yaml" />
+        <rosparam command="load" file="$(find adlink_ddsbot)/param/adlink_ekf_laser_params.yaml" if="$(arg use_laser_odom)" />
+        <rosparam command="load" file="$(find adlink_ddsbot)/param/adlink_ekf_encoder_params.yaml" unless="$(arg use_laser_odom)" />
     </node>
 
 </launch>
