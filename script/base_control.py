@@ -68,7 +68,7 @@ class BaseControl:
             line = self.serial.readline()
             data_array = string.split(line,",") # Fields split
             # Normal mode            
-            if self.debug_mode == False: 
+            if ~self.debug_mode: 
                 if len(data_array) == 2:
                     WL = float(data_array[0]) # unit: deg/sec
                     WR = float(data_array[1])
@@ -79,9 +79,9 @@ class BaseControl:
 
                 Vyaw = (VR-VL)/self.wheelSep
                 Vx = (VR+VL)/2.0
-
+                
                 msg = Odometry()
-                msg.header.stamp = rospy.Time.now()
+                #msg.header.stamp = rospy.Time.now()
                 msg.header.frame_id = self.odomId
                 msg.child_frame_id = self.baseId
                 msg.twist.twist.linear.x = Vx
@@ -92,7 +92,7 @@ class BaseControl:
                 msg.twist.covariance[35] = self.VyawCov
                 self.pub.publish(msg)
             # Debug mode            
-            if self.debug_mode == True: 
+            if self.debug_mode: 
                 if len(data_array) == 12:
                     L_ref = float(data_array[0]) # deg/sec
                     R_ref = float(data_array[1])
@@ -109,7 +109,7 @@ class BaseControl:
                 rospy.loginfo("[Debug] Lsend:%4d, Rsend:%4d, Lref:%4d, Rref:%4d, Lerr:%4d, Rerr:%4d, Lint:%4d, Rint:%4d, Lave:%3d, Rave:%3d, pwm: %3d %3d %3d %3d",
                               self.WL_send,self.WR_send, L_ref,R_ref, L_err,R_err, L_int,R_int, L_ave,R_ave, pwm_1,pwm_2,pwm_3,pwm_4 )
         except: 
-            #rospy.loginfo("Error in sensor value !")       
+            #rospy.loginfo("Error in sensor value !") 
             pass            
 
     def timerCmdCB(self, event):
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
         # Get params
         baseId = rospy.get_param('~base_id', 'base_link') # base link
-        odomId = rospy.get_param('~odom_id', 'base_odom')      # odom link
+        odomId = rospy.get_param('~odom_id', 'odom')      # odom link
         device_port = rospy.get_param('~port', '/dev/uno') # device port
         baudrate = float( rospy.get_param('~baudrate', '115200') ) 
         wheel_separation = float( rospy.get_param('~wheel_separation', '0.15') ) # unit: meter 

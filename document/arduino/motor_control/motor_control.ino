@@ -377,8 +377,8 @@ void controller_repoter_isr() {
   if(odom_pub)
   {
     char str[16];
-    sprintf(str, "%d,%d\r\n", odom_signL*(int)(average_counter_pin1*(float)encoder_res*timer_hz)
-                            , odom_signR*(int)(average_counter_pin2*(float)encoder_res*timer_hz) ); // deg/sec
+    sprintf(str, "%d,%d\r\n", (int)(average_counter_pin1*(float)encoder_res*timer_hz)*odom_signL
+                            , (int)(average_counter_pin2*(float)encoder_res*timer_hz)*odom_signR ); // deg/sec
     Serial.print(str);
   }
   else
