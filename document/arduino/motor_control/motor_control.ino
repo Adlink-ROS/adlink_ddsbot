@@ -53,12 +53,12 @@ volatile float WL_ref = 0.0; //reference speed for left wheel (deg/sec)
 volatile float WR_ref = 0.0;
 volatile float WL_prev = 0.0;
 volatile float WR_prev = 0.0;
-static const float min_ref = 100.0;
+static const float min_ref = 110.0;
 static const float max_ref = 350.0;
 static const float Kp_L = 0.2;
 static const float Kp_R = 0.2;
-static const float Ki_L = 0.35; 
-static const float Ki_R = 0.35;
+static const float Ki_L = 0.4; 
+static const float Ki_R = 0.4;
 static const float Kd_L = 0.015;
 static const float Kd_R = 0.015;
 volatile float integralL = 0.0;
@@ -66,8 +66,8 @@ volatile float integralR = 0.0;
 volatile float prev_error_L = 0.0;
 volatile float prev_error_R = 0.0;
 static const float integral_dec = 0.99; // for position control, it should be 1.0
-static const float integral_max = 100;
-static const float integral_min = -100;
+static const float integral_max = 120;
+static const float integral_min = -120;
 static const int pwm_max = 160;
 
 void setup() {
@@ -101,13 +101,14 @@ void setup() {
 }
 
 void loop() {
-    if (Serial.available()) {
+    if (Serial.available()) 
+    {
       String commad_string = Serial.readString();
       String checksum = getValue(commad_string, ',', 2);
       if(checksum.toInt() != (commad_string.length()-2-checksum.length()) )
       {
-        WL_ref = 0.0;
-        WR_ref = 0.0;
+        //WL_ref = 0.0;
+        //WR_ref = 0.0;
         return;
       }  
       WL_ref = getValue(commad_string, ',', 0).toFloat(); //getValue func should be removed (TBD) 
