@@ -27,6 +27,8 @@
 
     <!-- Navstack -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" >
+        <!-- global planner -->
+        <param name="NavfnROS/use_grid_path" value="true" />
         <!-- local planner -->   
         <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" if="$(arg use_dwa)"/>      
         <rosparam file="$(find adlink_ddsbot)/param/dwa_local_planner_params.yaml" command="load" if="$(arg use_dwa)"/>

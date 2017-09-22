@@ -103,7 +103,11 @@ void loop() {
       String commad_string = Serial.readString();
       String checksum = getValue(commad_string, ',', 2);
       if(checksum.toInt() != (commad_string.length()-2-checksum.length()) )
+      {
+        WL_ref = 0.0;
+        WR_ref = 0.0;
         return;
+      }  
       WL_ref = getValue(commad_string, ',', 0).toFloat(); //getValue func should be removed (TBD) 
       WR_ref = getValue(commad_string, ',', 1).toFloat();  
       

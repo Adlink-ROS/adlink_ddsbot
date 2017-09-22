@@ -1,12 +1,12 @@
 TrajectoryPlannerROS:
   #Set the acceleration limits of the robot
-  acc_lim_th: 0.2 
+  acc_lim_theta: 1.0 
   acc_lim_x: 0.05
   acc_lim_y: 0.05
 
   #Set the velocity limits of the robot
-  max_vel_x: 0.1
-  min_vel_x: 0.05
+  max_vel_x: 0.085
+  min_vel_x: 0.02
   max_vel_theta: 0.7
   min_vel_theta: -0.7
   min_in_place_rotational_vel: 0.6
@@ -30,8 +30,8 @@ TrajectoryPlannerROS:
 
   #Parameters for scoring trajectories
   meter_scoring: true # true: unit is meter, false: cell
-  pdist_scale: 2.5 # max is 5
-  gdist_scale: 0.1 # max is 5
+  pdist_scale: 3.0 # max is 5
+  gdist_scale: 0.5 # max is 5
   heading_scoring: false
   heading_lookahead: 0.1 # meter
   heading_scoring_timestep: 0.5 # secs
