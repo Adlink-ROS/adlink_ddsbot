@@ -6,10 +6,10 @@ Swarm robots using Opensplice DDS with ROS 1&2
 [Youtube Video]  
 
 ## Developer & Team
-HaoChih, LIN (haochih.lin@adlinktech.com)  
-Chester, Tseng (chester.tseng@adlinktech.com)  
-Erik, Boasson  
-Ryan, Chen   
+HaoChih Lin (haochih.lin@adlinktech.com)  
+Chester Tseng (chester.tseng@adlinktech.com)  
+Erik Boasson (erik.boasson@adlinktech.com)   
+Ryan Chen (ryanjb.chen@adlinktech.com)  
   
 ADLINK Technology, Inc  
 Advanced Robotic Platform Group  
