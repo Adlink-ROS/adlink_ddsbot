@@ -1,3 +1,4 @@
 $ sudo fdisk -l /dev/sdb
-$ sudo dd if=/dev/sdb bs=512 count=62945279 | gzip > ~/ADLINK_DDSBot_Pi3_20170906.img.gz
+$ sudo dd if=/dev/sdb bs=512 count=31422463 | gzip > ~/ADLINK_DDSBot_Pi3_20170925.img.gz
+
 
