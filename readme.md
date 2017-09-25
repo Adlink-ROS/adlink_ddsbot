@@ -28,8 +28,8 @@ Build your own low-cost ddsbot (~250USD)
 (https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/hardware/adlink_ddsbot_hardware.pdf)  
 
 [Arduino firmware]
-For UNO (motor control):
-For Nano (GY85 IMU): 
+For UNO (motor control): adlink_ddsbot/document/arduino/motor_control/motor_control.ino  
+For Nano (GY85 IMU): adlink_ddsbot/document/arduino/Razor_AHRS/Razor_AHRS.ino  
 
 ## Tutorial
 ### System prerequisite
