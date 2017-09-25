@@ -16,8 +16,8 @@ Advanced Robotic Platform Group
 Apache 2.0  
 Copyright 2017 ADLINK Technology, Inc.  
 
-## Concept
-Official slides:  
+## Software Architecture
+![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/ddsbot_soft_arch.jpg)
 
 ## Tutorial
 ### System prerequisite
@@ -45,7 +45,7 @@ Desktop:
 ### Real robot (raspberryPi3)
 [Hardware]  
 Build your own low-cost ddsbot (~250USD)  
-link:   
+pdf: adlink_ddsbot/document/adlink_ddsbot_hardware.pdf  
 
 [Image files]  
 Download pre-built image for Pi3 (ubuntu mate 16.04, ros 1&2)  
