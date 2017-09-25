@@ -28,7 +28,8 @@ Desktop:
 * create your own catkin_ws  
   (http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)  
 * Install required dependencies  
-  $ sudo apt-get install   
+  $ sudo apt-get install git ros-kinetic-navigation ros-kinetic-geographic-msgs ros-kinetic-slam-gmapping ros-kinetic-mrpt-slam ros-kinetic-mrpt-icp-slam-2d ros-kinetic-robot-localization ros-kinetic-stage* -y  
+* git clone adlink_ddsbot to your catkin_ws/src and compile  
 
 ### Simulation (stage, two computers)  
 1. Ckeck the hostname (should be unique in the network)  
@@ -47,7 +48,7 @@ Build your own low-cost ddsbot (~250USD)
 link:   
 
 [Image files]  
-Download pre-built image for Pi3 (ubuntu mate 16.04, ros 1/2)  
+Download pre-built image for Pi3 (ubuntu mate 16.04, ros 1&2)  
 link:   
 Burn image to SD card  
 
