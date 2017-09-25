@@ -2,7 +2,7 @@
 
 ## Abstract  
 Swarm robots using Opensplice DDS with ROS 1&2  
-[Official Slides]   
+[Official Slides] https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/Next-Gen_Smart_Manufacturing.pdf  
 [Youtube Video]  
 
 ## Developer & Team
@@ -22,9 +22,14 @@ Copyright 2017 ADLINK Technology, Inc.
 ![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/adlink_ddsbot_softarch.jpg)  
 
 ## Hardware Architecture
-![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/adlink_ddsbot_softarch.jpg)  
+![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/adlink_ddsbot_hardarch.jpg)  
 Build your own low-cost ddsbot (~250USD)  
 [Assembling PDF] adlink_ddsbot/document/hardware/adlink_ddsbot_hardware.pdf  
+(https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/hardware/adlink_ddsbot_hardware.pdf)  
+
+[Arduino firmware]
+For UNO (motor control):
+For Nano (GY85 IMU): 
 
 ## Tutorial
 ### System prerequisite
