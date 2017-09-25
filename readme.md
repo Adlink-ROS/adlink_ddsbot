@@ -2,7 +2,9 @@
 
 ## Abstract  
 Swarm robots using Opensplice DDS with ROS 1&2  
-  
+[Official Slides]:   
+[Youtube Video]:  
+
 ## Developer & Team
 HaoChih, LIN (haochih.lin@adlinktech.com)  
 Chester, Tseng (chester.tseng@adlinktech.com)  
@@ -19,15 +21,20 @@ Copyright 2017 ADLINK Technology, Inc.
 ## Software Architecture
 ![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/ddsbot_soft_arch.jpg)
 
+## Hardware Architecture
+![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/ddsbot_soft_arch.jpg)
+Build your own low-cost ddsbot (~250USD)  
+pdf: adlink_ddsbot/document/adlink_ddsbot_hardware.pdf  
+
 ## Tutorial
 ### System prerequisite
 Desktop:  
 * ROS 1.0  
   (Kinetic: http://wiki.ros.org/kinetic/Installation/Ubuntu)  
-* ROS 2.0 (tested on r2b2: )  
+* ROS 2.0 (tested on r2b2)  
 * create your own catkin_ws  
   (http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)  
-* Install required dependencies  
+* Install required dependencies:  
   $ sudo apt-get install git ros-kinetic-navigation ros-kinetic-geographic-msgs ros-kinetic-slam-gmapping ros-kinetic-mrpt-slam ros-kinetic-mrpt-icp-slam-2d ros-kinetic-robot-localization ros-kinetic-stage* -y  
 * git clone adlink_ddsbot to your catkin_ws/src and compile  
 
@@ -43,14 +50,10 @@ Desktop:
 8. Then, each robot can be aware of all the others shown on the rviz.  
 
 ### Real robot (raspberryPi3)
-[Hardware]  
-Build your own low-cost ddsbot (~250USD)  
-pdf: adlink_ddsbot/document/adlink_ddsbot_hardware.pdf  
-
 [Image files]  
 Download pre-built image for Pi3 (ubuntu mate 16.04, ros 1&2)  
 link:   
-Burn image to SD card  
+Burn image file to SD card  
 
 [Setup steps]  
 1. Connect Pi3 with your desktop by either ethernet cable or debug cable  
