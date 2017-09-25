@@ -133,15 +133,15 @@ while not rospy.is_shutdown():
         line = ser.readline()
         line = line.replace("#YPRAG=","")   # Delete "#YPRAG="
         words = string.split(line,",")    # Fields split
-
+        current = rospy.get_time()
+        dt = current - last;
+        last = current
         yaw_rad = -( float(words[8]) - vyaw_bias )*dt + yaw_rad
         if (yaw_rad < -math.pi):
 	        yaw_rad += 2*math.pi
         if (yaw_rad > math.pi):
 	        yaw_rad -= 2*math.pi
-        current = rospy.get_time()
-        dt = current - last;
-        last = current
+
         #rospy.loginfo("[debug] yaw(rad): %f", yaw_rad)
         q = quaternion_from_euler(0,0,yaw_rad)
         imuMsg.orientation.x = q[0]
