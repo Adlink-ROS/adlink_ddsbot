@@ -16,6 +16,9 @@ Advanced Robotic Platform Group
 Apache 2.0  
 Copyright 2017 ADLINK Technology, Inc.  
 
+## Concept
+Official slides:  
+
 ## Tutorial
 ### System prerequisite
 Desktop:  
@@ -60,12 +63,12 @@ Burn image to SD card
    ($ sudo ntpdate IP_ADDRESS)   
 4. Change the ROS 1 multi-machines variables in .bashrc  
    (for each robot, it has own roscore)  
-5. For ROS 1 Nav: $ roslaunch adlink_ddsbot Adlink_DDSBot_Nav_Single.launch  
-6. For ROS 2 Swarm:   
+5. For Single robot test: $ roslaunch adlink_ddsbot Adlink_DDSBot_Nav_Single.launch  
+6. For Swarm robots demo:   
    * $ roslaunch adlink_ddsbot Adlink_DDSBot_Nav_Swarm.launch  
    * $ ros2 run ros1_bridge parameter_bridge  
 7. Using remote computer to initial & set goal for the ddsbot through RVIZ  
 8. Do the same thing on another ddsbots (in the same network),  
-   once the ros1_bridge has been executed, all others ddsbots can be visualized on its own RVIZ.  
+   once the ros1_bridge has been executed, all others ddsbots can be visualized on RVIZ.  
 
 
