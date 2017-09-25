@@ -17,7 +17,7 @@ limitations under the License.
 
 // Debug param
 static const bool debug_mode = false; //for pySerial communication
-static const bool odom_pub = true; //publishing odom info (debug)
+static const bool odom_pub = false; //publishing odom info (debug)
 
 // Pin define
 static const int out1_pin = 5;//Left
@@ -29,6 +29,9 @@ static const int decoder_pin_2 = 2;//Right
 
 // Timer internal
 static const int timer_period = 20; // ms 
+static const int odom_pub_period = 40; // ms --> 20Hz
+static const int odom_pub_thres = odom_pub_period/timer_period;
+volatile int odom_pub_counter = 0;
 static const float timer_hz = 1000.0/( (float)timer_period ); // hz
 static const float timer_dt = timer_period/1000.0; // sec
 static const int filter_size = 20;
@@ -84,7 +87,7 @@ void setup() {
   analogWrite(out4_pin, 0);
 
   // Start serial port
-  Serial.begin(115200);
+  Serial.begin(57600);
   while (!Serial) {
   }
   Serial.setTimeout(50); //20Hz
@@ -154,6 +157,8 @@ void loop() {
           WR_ref = -min_ref + steering;
       }
     }
+    else
+      delay(50);
 }
 
 void decoder_1_isr() {
@@ -375,17 +380,23 @@ void controller_repoter_isr() {
   }
 
   // report encoder info (deg/sec)
-  if(odom_pub)
+  if(odom_pub_counter >= odom_pub_thres)
   {
-    char str[16];
-    sprintf(str, "%d,%d\r\n", (int)(average_counter_pin1*(float)encoder_res*timer_hz)*odom_signL
-                            , (int)(average_counter_pin2*(float)encoder_res*timer_hz)*odom_signR ); // deg/sec
-    Serial.print(str);
+    if(odom_pub)
+    {
+      char str[16];
+      sprintf(str, "%d,%d\r\n", (int)(average_counter_pin1*(float)encoder_res*timer_hz)*odom_signL
+                              , (int)(average_counter_pin2*(float)encoder_res*timer_hz)*odom_signR ); // deg/sec
+      Serial.print(str);
+    }
+    else
+    {
+      Serial.print("0,0\r\n");
+    }
+    odom_pub_counter = 0;
   }
   else
-  {
-    Serial.print("0,0\r\n");
-  }
+    odom_pub_counter = odom_pub_counter + 1;
   
   if(debug_mode)//debug mode
   {

@@ -42,7 +42,7 @@ class BaseControl:
         # ROS handler        
         self.sub = rospy.Subscriber('cmd_vel', Twist, self.cmdCB, queue_size=10)
         self.pub = rospy.Publisher('base_odom', Odometry, queue_size=10)   
-        self.timer_odom = rospy.Timer(rospy.Duration(0.02), self.timerOdomCB) # 50Hz
+        self.timer_odom = rospy.Timer(rospy.Duration(0.1), self.timerOdomCB) # 10Hz
         self.timer_cmd = rospy.Timer(rospy.Duration(0.1), self.timerCmdCB) # 10Hz
         # from rosparam        
         self.wheelSep = wheel_separation
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         baseId = rospy.get_param('~base_id', 'base_link') # base link
         odomId = rospy.get_param('~odom_id', 'odom')      # odom link
         device_port = rospy.get_param('~port', '/dev/uno') # device port
-        baudrate = float( rospy.get_param('~baudrate', '115200') ) 
+        baudrate = float( rospy.get_param('~baudrate', '57600') ) 
         wheel_separation = float( rospy.get_param('~wheel_separation', '0.15') ) # unit: meter 
         wheel_radius = float( rospy.get_param('~wheel_radius', '0.0335') ) # unit: meter
         vx_cov = float( rospy.get_param('~vx_cov', '0.01') ) # covariance for Vx measurement
