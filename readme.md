@@ -2,8 +2,8 @@
 
 ## Abstract  
 Swarm robots using Opensplice DDS with ROS 1&2  
-[Official Slides]:   
-[Youtube Video]:  
+[Official Slides]   
+[Youtube Video]  
 
 ## Developer & Team
 HaoChih, LIN (haochih.lin@adlinktech.com)  
@@ -19,10 +19,10 @@ Apache 2.0
 Copyright 2017 ADLINK Technology, Inc.  
 
 ## Software Architecture
-![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/ddsbot_soft_arch.jpg)
+![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/adlink_ddsbot_softarch.jpg)  
 
 ## Hardware Architecture
-![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/ddsbot_soft_arch.jpg)
+![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/adlink_ddsbot_softarch.jpg)  
 Build your own low-cost ddsbot (~250USD)  
 [Assembling PDF] adlink_ddsbot/document/hardware/adlink_ddsbot_hardware.pdf  
 
