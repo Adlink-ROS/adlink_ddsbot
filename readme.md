@@ -2,7 +2,7 @@
 
 ## Abstract  
 Swarm robots using Opensplice DDS with ROS 1&2  
-[Official Slides] https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/Next-Gen_Smart_Manufacturing.pdf  
+[Official Slides] https://github.com/Adlink-ROS/adlink_ddsbot/blob/release-1.0/document/Next-Gen_Smart_Manufacturing.pdf  
 [Youtube Video] https://www.youtube.com/watch?v=7ZIDkLKD4Y8  
 [![alt text](http://img.youtube.com/vi/7ZIDkLKD4Y8/0.jpg)](https://www.youtube.com/watch?v=7ZIDkLKD4Y8)  
   
@@ -21,13 +21,13 @@ Apache 2.0
 Copyright 2017 ADLINK Technology, Inc.  
 
 ## Software Architecture
-![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/adlink_ddsbot_softarch.jpg)  
+![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/release-1.0/document/adlink_ddsbot_softarch.jpg)  
 
 ## Hardware Architecture
-![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/adlink_ddsbot_hardarch.jpg)  
+![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/release-1.0/document/adlink_ddsbot_hardarch.jpg)  
 Build your own low-cost ddsbot (~250USD)  
 [Assembling PDF] adlink_ddsbot/document/hardware/adlink_ddsbot_hardware.pdf  
-(https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/hardware/adlink_ddsbot_hardware.pdf)  
+(https://github.com/Adlink-ROS/adlink_ddsbot/blob/release-1.0/document/hardware/adlink_ddsbot_hardware.pdf)  
 
 [Arduino firmware]  
 For UNO (motor control): adlink_ddsbot/document/arduino/motor_control/motor_control.ino  
@@ -85,6 +85,6 @@ Burn image file to SD card
    once the ros1_bridge has been executed, all others ddsbots can be visualized on RVIZ.  
 
 [Node Graph]  
-![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/adlink_ddsbot_nodes.png)  
+![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/release-1.0/document/adlink_ddsbot_nodes.png)  
 
 
