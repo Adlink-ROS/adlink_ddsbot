@@ -4,6 +4,8 @@
 Swarm robots using Opensplice DDS with ROS 1&2  
 [Official Slides] https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/Next-Gen_Smart_Manufacturing.pdf  
 [Youtube Video]  
+[![alt text](http://img.youtube.com/vi/7ZIDkLKD4Y8/0.jpg)](https://www.youtube.com/watch?v=7ZIDkLKD4Y8)  
+  
 
 ## Developer & Team
 HaoChih Lin (haochih.lin@adlinktech.com)  
@@ -58,6 +60,8 @@ For Nano (GY85 IMU): adlink_ddsbot/document/arduino/Razor_AHRS/Razor_AHRS.ino
 [Image files]  
 Download pre-built image for Pi3 (ubuntu mate 16.04, ros 1&2)  
 link:   
+Extract the file from .gz file:
+$ gunzip -c ADLINK_DDSBot_Pi3_20170925.img.gz > ADLINK_DDSBot_Pi3_20170925.img
 Burn image file to SD card  
 
 [Setup steps]  
@@ -79,5 +83,8 @@ Burn image file to SD card
 7. Using remote computer to initial & set goal for the ddsbot through RVIZ  
 8. Do the same thing on another ddsbots (in the same network),  
    once the ros1_bridge has been executed, all others ddsbots can be visualized on RVIZ.  
+
+[Nodes Graph]  
+
 
 
