@@ -84,7 +84,7 @@ Burn image file to SD card
 8. Do the same thing on another ddsbots (in the same network),  
    once the ros1_bridge has been executed, all others ddsbots can be visualized on RVIZ.  
 
-[Nodes Graph]  
-
+[Node Graph]  
+![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/adlink_ddsbot_nodes.png)  
 
 
