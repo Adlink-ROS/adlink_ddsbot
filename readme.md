@@ -3,7 +3,7 @@
 ## Abstract  
 Swarm robots using Opensplice DDS with ROS 1&2  
 [Official Slides] https://github.com/Adlink-ROS/adlink_ddsbot/blob/beta-1.0/document/Next-Gen_Smart_Manufacturing.pdf  
-[Youtube Video]  
+[Youtube Video] https://www.youtube.com/watch?v=7ZIDkLKD4Y8  
 [![alt text](http://img.youtube.com/vi/7ZIDkLKD4Y8/0.jpg)](https://www.youtube.com/watch?v=7ZIDkLKD4Y8)  
   
 
