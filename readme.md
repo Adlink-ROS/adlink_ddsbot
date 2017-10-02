@@ -58,10 +58,10 @@ For Nano (GY85 IMU): adlink_ddsbot/document/arduino/Razor_AHRS/Razor_AHRS.ino
 
 ### Real robot (raspberryPi3)
 [Image files]  
-Download pre-built image for Pi3 (ubuntu mate 16.04, ros 1&2)  
-link: https://drive.google.com/open?id=0BxI3PXhTd_3HWHRrVHprNHN3b1U  
+Download pre-built image for Pi3 (ubuntu mate 16.04, ros 1&2, 13GB)  
+link: https://drive.google.com/open?id=0BxI3PXhTd_3HWmh2c2VSbWFNRHM  
 Extract the file from .gz file:
-$ gunzip -c ADLINK_DDSBot_Pi3_20170925.img.gz > ADLINK_DDSBot_Pi3_20170925.img
+$ gunzip -c ADLINK_DDSBot_Pi3_20171002.img.gz > ADLINK_DDSBot_Pi3_20171002.img
 Burn image file to SD card  
 
 [Setup steps]  
