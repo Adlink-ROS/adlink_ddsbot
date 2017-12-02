@@ -26,8 +26,7 @@ Copyright 2017 ADLINK Technology, Inc.
 ## Hardware Architecture
 ![alt text](https://github.com/Adlink-ROS/adlink_ddsbot/blob/release-1.0/document/adlink_ddsbot_hardarch.jpg)  
 Build your own low-cost ddsbot (~250USD)  
-[Assembling PDF] adlink_ddsbot/document/hardware/adlink_ddsbot_hardware.pdf  
-(https://github.com/Adlink-ROS/adlink_ddsbot/blob/release-1.0/document/hardware/adlink_ddsbot_hardware.pdf)  
+[Assembling PDF] [adlink_ddsbot/document/hardware/adlink_ddsbot_hardware.pdf](https://github.com/Adlink-ROS/adlink_ddsbot/blob/release-1.0/document/hardware/adlink_ddsbot_hardware.pdf)  
 
 [Arduino firmware]  
 For UNO (motor control): adlink_ddsbot/document/arduino/motor_control/motor_control.ino  
@@ -42,16 +41,16 @@ For Nano (GY85 IMU): adlink_ddsbot/document/arduino/Razor_AHRS/Razor_AHRS.ino
 * create your own catkin_ws  
   (http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)  
 * Install required dependencies:  
-  $ sudo apt-get install git ros-kinetic-navigation ros-kinetic-geographic-msgs ros-kinetic-slam-gmapping ros-kinetic-mrpt-slam ros-kinetic-mrpt-icp-slam-2d ros-kinetic-robot-localization ros-kinetic-stage* -y  
-* git clone adlink_ddsbot to your catkin_ws/src and compile  
+  `$ sudo apt-get install git ros-kinetic-navigation ros-kinetic-geographic-msgs ros-kinetic-slam-gmapping ros-kinetic-mrpt-slam ros-kinetic-mrpt-icp-slam-2d ros-kinetic-robot-localization ros-kinetic-stage* -y`
+* `git clone adlink_ddsbot to your catkin_ws/src and compile`
 
 ### Simulation (stage, two computers)  
 1. Ckeck the hostname (should be unique in the network)  
 2. Check the system time synchronization ($ sudo ntpdate IP_TARGET)  
 3. Open a terminal (remember to source ros2 & ros1 setup.bash)  
-4. $ export HOSTNAME  
-5. $ roslaunch adlink_ddsbot Swarm_Sim_Stage.launch  
-6. $ ros2 run ros1_bridge parameter_bridge  
+4. `$ export HOSTNAME`
+5. `$ roslaunch adlink_ddsbot Swarm_Sim_Stage.launch`
+6. `$ ros2 run ros1_bridge parameter_bridge`
 7. Repeat the same steps on another computer/robot   
    (both should be in the same network)  
 8. Then, each robot can be aware of all the others shown on the rviz.  
@@ -61,7 +60,7 @@ For Nano (GY85 IMU): adlink_ddsbot/document/arduino/Razor_AHRS/Razor_AHRS.ino
 Download pre-built image for Pi3 (ubuntu mate 16.04, ros 1&2, 13GB)  
 link: https://drive.google.com/open?id=0BxI3PXhTd_3HWmh2c2VSbWFNRHM  
 Extract the file from .gz file:
-$ gunzip -c ADLINK_DDSBot_Pi3_20171002.img.gz > ADLINK_DDSBot_Pi3_20171002.img
+`$ gunzip -c ADLINK_DDSBot_Pi3_20171002.img.gz > ADLINK_DDSBot_Pi3_20171002.img`
 Burn image file to SD card  
 
 [Setup steps]  
@@ -69,17 +68,17 @@ Burn image file to SD card
 2. Power-on and login: (passward is: adlinkros)   
    * hdmi display: you can see the ADLink logo on the desktop  
    * ethernet: the default id address of provided image is 10.0.0.1  
-               ($ ssh pi@10.0.0.1)   
+               (`$ ssh pi@10.0.0.1`)
    * debug cable: enter the passward  
 3. Change robot's hostname and connect to local network  
 4. Synchronize the system time throught AP server/specific computer  
-   ($ sudo ntpdate IP_ADDRESS)   
+   (`$ sudo ntpdate IP_ADDRESS`)
 4. Change the ROS 1 multi-machines variables in .bashrc  
    (for each robot, it has own roscore)  
-5. For Single robot test: $ roslaunch adlink_ddsbot Adlink_DDSBot_Nav_Single.launch  
+5. For Single robot test: `$ roslaunch adlink_ddsbot Adlink_DDSBot_Nav_Single.launch`
 6. For Swarm robots demo:   
-   * $ roslaunch adlink_ddsbot Adlink_DDSBot_Nav_Swarm.launch  
-   * $ ros2 run ros1_bridge parameter_bridge  
+   * `$ roslaunch adlink_ddsbot Adlink_DDSBot_Nav_Swarm.launch`
+   * `$ ros2 run ros1_bridge parameter_bridge`
 7. Using remote computer to initial & set goal for the ddsbot through RVIZ  
 8. Do the same thing on another ddsbots (in the same network),  
    once the ros1_bridge has been executed, all others ddsbots can be visualized on RVIZ.  
