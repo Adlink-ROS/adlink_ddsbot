@@ -44,7 +44,7 @@ For Nano (GY85 IMU): adlink_ddsbot/document/arduino/Razor_AHRS/Razor_AHRS.ino
 
 * ROS 1.0
   (Kinetic: <http://wiki.ros.org/kinetic/Installation/Ubuntu)>
-* ROS 2.0 (tested on r2b2)
+* ROS 2.0 (tested on Ardent)
 * create your own catkin_ws
   (<http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)>
 * Install required dependencies:  
